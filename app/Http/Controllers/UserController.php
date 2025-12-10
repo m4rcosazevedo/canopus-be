@@ -5,57 +5,43 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    public function __construct(
+        protected UserService $service
+    ) {}
+
     public function index(): AnonymousResourceCollection
     {
-        $users = User::paginate(10);
+        $users = $this->service->list();
         return UserResource::collection($users);
     }
 
     public function show(string $id): UserResource
     {
-        $user = User::findOrFail($id);
+        $user = $this->service->show($id);
         return new UserResource($user);
     }
 
     public function store(StoreUserRequest $request): UserResource
     {
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'cellphone' => $request->cellphone,
-            'password' => Hash::make($request->password),
-        ]);
-
+        $user = $this->service->create($request->validated());
         return new UserResource($user);
     }
 
     public function update(UpdateUserRequest $request, string $id): UserResource
     {
-        $user = User::findOrFail($id);
-
-        $data = $request->validated();
-
-        if (isset($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        }
-
-        $user->update($data);
-
+        $user = $this->service->update($id, $request->validated());
         return new UserResource($user);
     }
 
     public function destroy(string $id): JsonResponse
     {
-        $user = User::findOrFail($id);
-        $user->delete();
-
+        $this->service->delete($id);
         return response()->json(null, 204);
     }
 }

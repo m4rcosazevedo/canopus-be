@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterRequest extends FormRequest
 {
+    const STUDENT_ID = 3;
+
     public function rules(): array
     {
         return [
@@ -14,5 +16,13 @@ class RegisterRequest extends FormRequest
             'cellphone' => 'required|string|max:20',
             'password' => 'required|string|min:8',
         ];
+    }
+
+    public function validated($key = null, $default = null): array
+    {
+        $data = parent::validated();
+
+        $data['user_type_id'] = self::STUDENT_ID;
+        return $data;
     }
 }

@@ -18,6 +18,16 @@ class StoreUserRequest extends FormRequest
             'email' => 'required|string|email|max:255|unique:users',
             'cellphone' => 'required|string|max:20',
             'password' => 'required|string|min:8',
+            'type'       => 'required|integer|exists:user_types,id'
         ];
+    }
+
+    public function validated($key = null, $default = null): array
+    {
+        $data = parent::validated();
+
+        $data['user_type_id'] = $data['type'];
+        unset($data['type']);
+        return $data;
     }
 }
