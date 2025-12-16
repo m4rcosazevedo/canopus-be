@@ -13,6 +13,11 @@ class PlanRepository
             ->paginate();
     }
 
+    public function findById(int $id, array $withRelations): Plan
+    {
+        return Plan::with($withRelations)->findOrFail($id);
+    }
+
     public function create(array $data)
     {
         return Plan::create($data);

@@ -2,13 +2,17 @@
 
 namespace App\Repositories;
 
+use App\Filters\UserFilter;
 use App\Models\User;
 
 class UserRepository
 {
     public function paginate()
     {
-        return User::with(User::DEFAULT_RELATIONS)->paginate();
+        return User::with(User::DEFAULT_RELATIONS)
+            ->filter(new UserFilter(request()))
+            ->orderByDesc('id')
+            ->paginate();
     }
 
     public function findById(string|int $id): User

@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassController;
+use App\Http\Controllers\ClassRegistrationController;
+use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{plan}', [PlanController::class, 'show']);
         Route::put('/{plan}', [PlanController::class, 'update']);
         Route::delete('/{plan}', [PlanController::class, 'destroy']);
+        Route::get('/{planId}/available-classes', [ClassController::class, 'availableClasses']);
     });
 
     Route::group(['prefix' => '/class'], function () {
@@ -40,4 +43,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{class}', [ClassController::class, 'update']);
         Route::delete('/{class}', [ClassController::class, 'destroy']);
     });
+
+    Route::group(['prefix' => '/class-registration'], function () {
+        Route::get('/', [ClassRegistrationController::class, 'index']);
+    });
+
+    Route::post('/enroll', [EnrollmentController::class, 'enroll']);
 });

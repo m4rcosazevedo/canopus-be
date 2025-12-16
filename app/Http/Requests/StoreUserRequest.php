@@ -14,11 +14,18 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|regex:/^[A-Za-zÀ-ÿ]/',
             'email' => 'required|string|email|max:255|unique:users',
             'cellphone' => 'required|string|max:20',
             'password' => 'required|string|min:8',
             'type'       => 'required|integer|exists:user_types,id'
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.regex' => 'O nome deve começar com uma letra.'
         ];
     }
 

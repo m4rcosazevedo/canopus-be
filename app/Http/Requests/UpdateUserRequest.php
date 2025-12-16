@@ -17,9 +17,18 @@ class UpdateUserRequest extends FormRequest
         $userId = $this->route('id');
 
         return [
-            'name'      => 'sometimes|required|string|max:255',
+            'name'      => 'sometimes|required|string|max:255|regex:/^[A-Za-zÀ-ÿ]/',
             'email'     => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
-            'cellphone' => 'sometimes|required|string|max:20'
+            'cellphone' => 'sometimes|required|string|max:20',
+            'type'       => 'required|integer|exists:user_types,id'
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'name.regex' => 'O nome deve começar com uma letra.'
+        ];
+    }
+
 }

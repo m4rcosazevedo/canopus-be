@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Filterable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class BaseModel extends Model
 {
+    use Filterable;
+
     public function newEloquentBuilder($query)
     {
         return new \App\Builders\CustomBuilder($query);

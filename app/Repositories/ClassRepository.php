@@ -35,4 +35,12 @@ class ClassRepository
     {
         return $class->delete();
     }
+
+    public function getAvailableByPlan(int $planId)
+    {
+        return ClassModel::query()
+            ->where('plan_id', $planId)
+            ->available()
+            ->get();
+    }
 }

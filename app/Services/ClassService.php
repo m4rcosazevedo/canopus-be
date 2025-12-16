@@ -38,4 +38,9 @@ class ClassService
     {
         return $this->repository->delete($class);
     }
+
+    public function availableByPlan(int $planId)
+    {
+        return $this->repository->getAvailableByPlan($planId);
+    }
 }

@@ -17,6 +17,11 @@ class StudentPlan extends BaseModel
         'freeze_until',
     ];
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class);

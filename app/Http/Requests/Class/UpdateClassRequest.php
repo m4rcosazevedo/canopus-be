@@ -25,6 +25,14 @@ class UpdateClassRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'capacity.min' => 'A capacidade mínima é 1 aluno.',
+            'capacity.max' => 'A capacidade máxima é 1000 alunos.',
+        ];
+    }
+
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
@@ -38,7 +46,7 @@ class UpdateClassRequest extends FormRequest
         $user = User::find($this->user_id);
 
         if (!$user || !in_array($user->userType->name, ['instructor', 'administrator'])) {
-            $validator->errors()->add('user_id', 'The user must have the type "instructor" or "administrator".');
+            $validator->errors()->add('user_id', trans('class.errors.invalid_user_type'));
         }
     }
 
@@ -64,7 +72,7 @@ class UpdateClassRequest extends FormRequest
         if ($conflict) {
             $validator->errors()->add(
                 'start_time',
-                'There is already a class for this plan, user, and weekday that conflicts with the provided time.'
+                trans('class.errors.schedule_conflict')
             );
         }
     }

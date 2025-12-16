@@ -48,4 +48,10 @@ class ClassController extends Controller
         $this->service->delete($class);
         return response()->noContent();
     }
+
+    public function availableClasses($planId)
+    {
+        $classes = $this->service->availableByPlan($planId);
+        return ClassResource::collection($classes);
+    }
 }

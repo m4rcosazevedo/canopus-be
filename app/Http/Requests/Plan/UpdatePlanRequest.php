@@ -26,4 +26,13 @@ class UpdatePlanRequest extends FormRequest
             'status'                => 'boolean'
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'price.max' => 'O valor do plano é muito alto.',
+            'duration_in_days.max' => 'A duração máxima do plano é de 365 dias.',
+            'max_classes_per_week.max' => 'O máximo de aulas por semana é 5.',
+        ];
+    }
 }
