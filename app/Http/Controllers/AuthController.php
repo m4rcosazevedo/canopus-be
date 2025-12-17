@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,39 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    /**
+     * @throws ValidationException
+     */
+    public function login(LoginRequest $request): UserResource
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (!Auth::attempt($credentials)) {
+            throw ValidationException::withMessages([
+                'email' => ['As credenciais fornecidas estão incorretas.'],
+            ]);
+        }
+
+        $request->session()->regenerate();
+
+        return new UserResource(Auth::user());
+    }
+
+    public function logout(Request $request): JsonResponse
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json(['message' => 'Logout realizado']);
+    }
+
+    public function me(): UserResource
+    {
+        return new UserResource(Auth::user());
+    }
+
     public function register(RegisterRequest $request): JsonResponse
     {
         $user = User::create([

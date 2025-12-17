@@ -14,9 +14,11 @@ Route::post('/signIn', [AuthController::class, 'signIn']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/signOut', [AuthController::class, 'signOut']);
+//    Route::post('/signOut', [AuthController::class, 'signOut']);
     Route::post('/refreshToken', [AuthController::class, 'refreshToken']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
+
+    Route::get('/me', [AuthController::class, 'me']);
 
     Route::group(['prefix' => '/user'], function () {
         Route::get('/', [UserController::class, 'index']);
