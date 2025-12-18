@@ -2,8 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\MassPrunable;
+
 class AuditLog extends BaseNoAuditableModel
 {
+    use MassPrunable;
+
     protected $fillable = [
         'user_id',
         'user_email',
@@ -26,6 +31,14 @@ class AuditLog extends BaseNoAuditableModel
     public function auditable()
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Define o critério para registros que devem ser limpos.
+     */
+    public function prunable(): Builder
+    {
+        return static::where('created_at', '<=', now()->subMonth());
     }
 
     public function getDiff(): array
