@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -17,7 +17,6 @@ class StoreUserRequest extends FormRequest
             'name' => 'required|string|max:255|regex:/^[A-Za-zÀ-ÿ]/',
             'email' => 'required|string|email|max:255|unique:users',
             'cellphone' => 'required|string|max:20',
-            'password' => 'required|string|min:8',
             'type'       => 'required|integer|exists:user_types,id'
         ];
     }
