@@ -56,6 +56,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::group(['prefix' => '/audit-log'], function () {
         Route::get('/', [AuditLogController::class, 'index']);
         Route::get('/{auditLog}', [AuditLogController::class, 'show']);
-        Route::get('/transaction/{id}', [AuditLogController::class, 'showTransaction']);
+        Route::get('/transaction/{transactionId}', [AuditLogController::class, 'showTransaction']);
     });
 });
