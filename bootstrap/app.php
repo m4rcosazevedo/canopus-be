@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\AuditTransaction;
+use App\Http\Middleware\ForceJsonResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,12 +17,21 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(
             prepend: [
-                \App\Http\Middleware\ForceJsonResponse::class
+                ForceJsonResponse::class
             ]
         );
+
         $middleware->appendToGroup('api', [
             EnsureFrontendRequestsAreStateful::class,
         ]);
+
+        // Para aplicar em TODAS as requisições (Web e API)
+        $middleware->append(AuditTransaction::class);
+        /* Ou, se quiser aplicar apenas em grupos específicos:
+           $middleware->web(append: [AuditTransaction::class]);
+           $middleware->api(append: [AuditTransaction::class]);
+        */
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -7,9 +7,9 @@ use App\Traits\Filterable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
-class BaseModel extends Model
+class BaseNoAuditableModel extends Model
 {
-    use Filterable, Auditable;
+    use Filterable;
 
     public function newEloquentBuilder($query)
     {

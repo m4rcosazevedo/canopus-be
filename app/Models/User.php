@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Builders\CustomBuilder;
+use App\Traits\Auditable;
 use App\Traits\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,11 +14,13 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, Filterable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, Filterable, Auditable;
 
     const DEFAULT_RELATIONS = [
         'userType',
     ];
+
+    protected array $auditExclude = ['password', 'remember_token'];
 
     public function newEloquentBuilder($query): CustomBuilder
     {

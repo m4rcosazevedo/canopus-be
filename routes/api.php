@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClassRegistrationController;
@@ -51,4 +52,10 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::post('/enroll', [EnrollmentController::class, 'enroll']);
+
+    Route::group(['prefix' => '/audit-log'], function () {
+        Route::get('/', [AuditLogController::class, 'index']);
+        Route::get('/{auditLog}', [AuditLogController::class, 'show']);
+        Route::get('/transaction/{id}', [AuditLogController::class, 'showTransaction']);
+    });
 });
