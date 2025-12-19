@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CityController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClassRegistrationController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PlanController;
+use App\Http\Controllers\StateController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,5 +60,30 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [AuditLogController::class, 'index']);
         Route::get('/{auditLog}', [AuditLogController::class, 'show']);
         Route::get('/transaction/{transactionId}', [AuditLogController::class, 'showTransaction']);
+    });
+
+    Route::group(['prefix' => '/state'], function () {
+        Route::get('/', [StateController::class, 'index']);
+        Route::post('/', [StateController::class, 'store']);
+        Route::get('/{state}', [StateController::class, 'show']);
+        Route::put('/{state}', [StateController::class, 'update']);
+        Route::delete('/{state}', [StateController::class, 'destroy']);
+    });
+
+    Route::group(['prefix' => '/city'], function () {
+        Route::get('/', [CityController::class, 'index']);
+        Route::post('/', [CityController::class, 'store']);
+        Route::get('/{city}', [CityController::class, 'show']);
+        Route::put('/{city}', [CityController::class, 'update']);
+        Route::delete('/{city}', [CityController::class, 'destroy']);
+    });
+
+    Route::group(['prefix' => '/address'], function () {
+        Route::get('/', [AddressController::class, 'index']);
+        Route::post('/', [AddressController::class, 'store']);
+        Route::post('/byZipCode', [AddressController::class, 'storeByZipCode']);
+        Route::get('/{address}', [AddressController::class, 'show']);
+        Route::put('/{address}', [AddressController::class, 'update']);
+        Route::delete('/{address}', [AddressController::class, 'destroy']);
     });
 });

@@ -63,6 +63,13 @@ return [
         'allow_makeup_classes' => 'permitir reposições',
         'max_makeup_per_month' => 'máximo de reposições por mês',
         'can_freeze' => 'permitir congelamento',
-        'max_freeze_days' => 'máximo de dias de congelamento'
+        'max_freeze_days' => 'máximo de dias de congelamento',
+        'zip_code'      => 'CEP',
+        'city_id'       => 'cidade',
+        'street_name'   => 'logradouro',
+        'street_type'   => 'tipo de logradouro',
+        'district'      => 'bairro',
+        'ibge_code'     => 'código do IBGE',
+        'abbr'          => 'sigla do estado',
     ],
 ];
