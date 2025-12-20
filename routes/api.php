@@ -10,6 +10,7 @@ use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserDocumentController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -30,6 +31,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [UserController::class, 'show']);
         Route::put('/{id}', [UserController::class, 'update']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
+
+        Route::group(['prefix' => '/{user}/document'], function () {
+            Route::get('/', [UserDocumentController::class, 'index']);
+            Route::post('/', [UserDocumentController::class, 'store']);
+            Route::get('/{document}', [UserDocumentController::class, 'show']);
+            Route::put('/{document}', [UserDocumentController::class, 'update']);
+            Route::delete('/{document}', [UserDocumentController::class, 'destroy']);
+        });
     });
 
     Route::group(['prefix' => '/plan'], function () {

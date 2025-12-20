@@ -71,5 +71,6 @@ return [
         'district'      => 'bairro',
         'ibge_code'     => 'código do IBGE',
         'abbr'          => 'sigla do estado',
+        'issued_at'     => 'data de emissão',
     ],
 ];
