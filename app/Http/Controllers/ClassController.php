@@ -49,7 +49,7 @@ class ClassController extends Controller
         return response()->noContent();
     }
 
-    public function availableClasses($planId)
+    public function availableClasses($planId): AnonymousResourceCollection
     {
         $classes = $this->service->availableByPlan($planId);
         return ClassResource::collection($classes);

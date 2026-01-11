@@ -4,18 +4,12 @@ namespace App\Http\Requests\Address;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddressRequest extends FormRequest
+class AddressSearchByZipCodeRequest extends FormRequest
 {
     public function rules(): array
     {
-        $isUpdate = $this->isMethod('PUT');
-
         return [
-            'zip_code' => 'required|string|size:8',
-            'city_id' => $isUpdate ? 'required|exists:cities,id' : 'nullable|exists:cities,id',
-            'street_name' => $isUpdate ? 'required|string|max:150' : 'nullable|string|max:150',
-            'street_type' => 'required|string|max:20',
-            'district' => 'required|string|max:100',
+            'zip_code' => 'required|string|size:8'
         ];
     }
 

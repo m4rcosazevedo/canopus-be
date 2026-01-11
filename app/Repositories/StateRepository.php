@@ -2,18 +2,24 @@
 
 namespace App\Repositories;
 
-use App\Filters\StateFilter;
 use App\Models\State;
+use App\Filters\StateFilter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
+
 
 class StateRepository
 {
+    public function all(Request $request): Collection
+    {
+        return $this->baseQuery($request)->get();
+    }
+
     public function paginate(Request $request): LengthAwarePaginator
     {
-        return State::orderBy('abbr')
-            ->filter(new StateFilter($request))
-            ->paginate();
+        return $this->baseQuery($request)->paginate();
     }
 
     public function create(array $data): State
@@ -31,5 +37,12 @@ class StateRepository
     public function delete(State $state): bool
     {
         return $state->delete();
+    }
+
+    private function baseQuery(Request $request): Builder
+    {
+        return State::query()
+            ->orderBy('abbr')
+            ->filter(new StateFilter($request));
     }
 }

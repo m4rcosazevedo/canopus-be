@@ -19,6 +19,8 @@ class User extends Authenticatable
 
     const DEFAULT_RELATIONS = [
         'userType',
+        'documents.documentType',
+        'addresses.address.city.state',
     ];
 
     protected array $auditExclude = ['password', 'remember_token'];
@@ -52,6 +54,11 @@ class User extends Authenticatable
     public function documents(): HasMany
     {
         return $this->hasMany(UserDocument::class);
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(UserAddress::class);
     }
 
     /** Attributes */

@@ -16,7 +16,7 @@ class ZipCodeService
     ];
 
     // Lista comum de tipos de logradouro para o parser.
-    protected array $streetTypes = [
+    public array $streetTypes = [
         'Rua', 'Avenida', 'Av.', 'Praça', 'Alameda', 'Travessa', 'Rodovia',
         'Viela', 'Ladeira', 'Estrada', 'Bloco', 'Conjunto', 'Setor'
     ];

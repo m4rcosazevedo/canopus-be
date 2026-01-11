@@ -9,6 +9,7 @@ use App\Http\Controllers\ClassRegistrationController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\StateController;
+use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDocumentController;
 use Illuminate\Support\Facades\Route;
@@ -26,73 +27,53 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
 
     Route::group(['prefix' => '/user'], function () {
-        Route::get('/', [UserController::class, 'index']);
-        Route::post('/', [UserController::class, 'store']);
-        Route::get('/{id}', [UserController::class, 'show']);
-        Route::put('/{id}', [UserController::class, 'update']);
-        Route::delete('/{id}', [UserController::class, 'destroy']);
-
-        Route::group(['prefix' => '/{user}/document'], function () {
-            Route::get('/', [UserDocumentController::class, 'index']);
-            Route::post('/', [UserDocumentController::class, 'store']);
-            Route::get('/{document}', [UserDocumentController::class, 'show']);
-            Route::put('/{document}', [UserDocumentController::class, 'update']);
-            Route::delete('/{document}', [UserDocumentController::class, 'destroy']);
-        });
+        Route::apiResource('/{user}/document', UserDocumentController::class);
+        Route::apiResource('/{user}/address', UserAddressController::class);
     });
+    Route::apiResource('/user', UserController::class);
 
+    /** Plans */
     Route::group(['prefix' => '/plan'], function () {
-        Route::get('/', [PlanController::class, 'index']);
-        Route::post('/', [PlanController::class, 'store']);
         Route::get('/available', [PlanController::class, 'available']);
-        Route::get('/{plan}', [PlanController::class, 'show']);
-        Route::put('/{plan}', [PlanController::class, 'update']);
-        Route::delete('/{plan}', [PlanController::class, 'destroy']);
         Route::get('/{planId}/available-classes', [ClassController::class, 'availableClasses']);
     });
+    Route::apiResource('/plan', PlanController::class);
 
-    Route::group(['prefix' => '/class'], function () {
-        Route::get('/', [ClassController::class, 'index']);
-        Route::post('/', [ClassController::class, 'store']);
-        Route::get('/{class}', [ClassController::class, 'show']);
-        Route::put('/{class}', [ClassController::class, 'update']);
-        Route::delete('/{class}', [ClassController::class, 'destroy']);
-    });
+    /** Class */
+    Route::apiResource('/class', ClassController::class);
 
+    /** Class Registration */
     Route::group(['prefix' => '/class-registration'], function () {
         Route::get('/', [ClassRegistrationController::class, 'index']);
     });
 
+    /** Enroll */
     Route::post('/enroll', [EnrollmentController::class, 'enroll']);
 
+    /** AuditLog */
     Route::group(['prefix' => '/audit-log'], function () {
         Route::get('/', [AuditLogController::class, 'index']);
         Route::get('/{auditLog}', [AuditLogController::class, 'show']);
         Route::get('/transaction/{transactionId}', [AuditLogController::class, 'showTransaction']);
     });
 
+    /** State */
     Route::group(['prefix' => '/state'], function () {
-        Route::get('/', [StateController::class, 'index']);
-        Route::post('/', [StateController::class, 'store']);
-        Route::get('/{state}', [StateController::class, 'show']);
-        Route::put('/{state}', [StateController::class, 'update']);
-        Route::delete('/{state}', [StateController::class, 'destroy']);
+        Route::get('/options', [StateController::class, 'options']);
     });
+    Route::apiResource('/state', StateController::class);
 
+    /** City */
     Route::group(['prefix' => '/city'], function () {
-        Route::get('/', [CityController::class, 'index']);
-        Route::post('/', [CityController::class, 'store']);
-        Route::get('/{city}', [CityController::class, 'show']);
-        Route::put('/{city}', [CityController::class, 'update']);
-        Route::delete('/{city}', [CityController::class, 'destroy']);
+        Route::get('/options', [CityController::class, 'options']);
     });
+    Route::apiResource('/city', CityController::class);
 
+    /** Address */
     Route::group(['prefix' => '/address'], function () {
-        Route::get('/', [AddressController::class, 'index']);
-        Route::post('/', [AddressController::class, 'store']);
+        Route::get('/byZipCode', [AddressController::class, 'searchByZipCode']);
         Route::post('/byZipCode', [AddressController::class, 'storeByZipCode']);
-        Route::get('/{address}', [AddressController::class, 'show']);
-        Route::put('/{address}', [AddressController::class, 'update']);
-        Route::delete('/{address}', [AddressController::class, 'destroy']);
+        Route::get('/streetTypes', [AddressController::class, 'streetTypes']);
     });
+    Route::apiResource('address', AddressController::class);
 });

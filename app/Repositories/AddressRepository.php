@@ -24,6 +24,13 @@ class AddressRepository
         return $address->load(self::DEFAULT_RELATIONS);
     }
 
+    public function findByZipCode(string $zipCode): ?Address
+    {
+        return Address::with(self::DEFAULT_RELATIONS)
+            ->where('zip_code', $zipCode)
+            ->first();
+    }
+
     public function create(array $data): Address
     {
         return Address::create($data)->load(self::DEFAULT_RELATIONS);
@@ -39,5 +46,17 @@ class AddressRepository
     public function delete(Address $address): bool
     {
         return $address->delete();
+    }
+
+    public function findOrCreate(array $data): Address
+    {
+        return Address::query()
+            ->where('zip_code', $data['zip_code'])
+            ->where('street_name', $data['street_name'])
+            ->where('street_type', $data['street_type'] ?? null)
+            ->where('district', $data['district'] ?? null)
+            ->where('city_id', $data['city_id'])
+            ->first()
+            ?? $this->create($data);
     }
 }

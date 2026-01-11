@@ -23,7 +23,7 @@ class AddressWithAutoCompleteRequest extends AddressRequest
             $externalData = $zipService->findAddress($this->zip_code);
 
             if (!$externalData) {
-                $validator->errors()->add('zip_code', 'CEP inválido ou não encontrado.');
+                $validator->errors()->add('zip_code', trans('address.errors.invalid_zip_code'));
                 return;
             }
 
@@ -33,7 +33,7 @@ class AddressWithAutoCompleteRequest extends AddressRequest
                 ->exists();
 
             if ($exists) {
-                $validator->errors()->add('zip_code', 'Este logradouro já está cadastrado para este CEP.');
+                $validator->errors()->add('zip_code', trans('address.errors.exists_address_zip_code'));
             }
 
             $this->merge(['auto_complete_data' => $externalData]);

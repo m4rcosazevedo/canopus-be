@@ -41,6 +41,10 @@ class UserService
 
     public function delete(string|int $id): bool
     {
+        if (auth()->id() == $id) {
+            throw new \Exception("Você não pode excluir sua própria conta.");
+        }
+
         $user = $this->repository->findById($id);
         return $this->repository->delete($user);
     }

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Address\AddressSearchByZipCodeRequest;
 use App\Http\Requests\Address\AddressWithAutoCompleteRequest;
 use App\Models\Address;
 use App\Repositories\CityRepository;
+use App\Services\ZipCodeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -51,6 +53,22 @@ class AddressController extends Controller
         return response()->noContent();
     }
 
+    public function searchByZipCode (AddressSearchByZipCodeRequest $request): JsonResponse|AddressResource
+    {
+        $request->validate(['zip_code' => 'required|string|size:8']);
+
+        $zipCode = $request->zip_code;
+        $address = $this->repository->findByZipCode($zipCode);
+
+        if ($address) {
+            return new AddressResource($address);
+        }
+
+        $validatedRequest = app(AddressWithAutoCompleteRequest::class);
+
+        return $this->storeByZipCode($validatedRequest);
+    }
+
     public function storeByZipCode (AddressWithAutoCompleteRequest $request): JsonResponse|AddressResource
     {
         $externalData = $request->auto_complete_data;
@@ -80,5 +98,23 @@ class AddressController extends Controller
 
         $address = $this->repository->create($data);
         return new AddressResource($address);
+    }
+
+    public function streetTypes(): JsonResponse
+    {
+        $streetTypes = (new ZipCodeService())->streetTypes;
+
+        $options = [];
+
+        foreach ($streetTypes as $type) {
+            $options[] = [
+                'label' => $type,
+                'value' => $type,
+            ];
+        }
+
+        return response()->json([
+            "data" => $options
+        ]);
     }
 }

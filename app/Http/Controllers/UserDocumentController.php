@@ -25,6 +25,8 @@ class UserDocumentController extends Controller
 
     public function show(User $user, UserDocument $document): UserDocumentResource
     {
+        $this->abortIfUserIsDifferent($user, $document);
+
         $document = $this->repository->find($document);
         return new UserDocumentResource($document);
     }
@@ -37,7 +39,7 @@ class UserDocumentController extends Controller
 
     public function update(UpdateUserDocumentRequest $request, User $user, UserDocument $document): UserDocumentResource
     {
-        abort_if($document->user_id !== $user->id, 404, 'Documento não encontrado para este usuário.');
+        $this->abortIfUserIsDifferent($user, $document);
 
         $updated = $this->repository->update($request->validated(), $document);
         return new UserDocumentResource($updated);
@@ -45,9 +47,14 @@ class UserDocumentController extends Controller
 
     public function destroy(User $user, UserDocument $document): Response
     {
-        abort_if($document->user_id !== $user->id, 404, 'Documento não encontrado para este usuário.');
+        $this->abortIfUserIsDifferent($user, $document);
 
         $this->repository->delete($document);
         return response()->noContent();
+    }
+
+    private function abortIfUserIsDifferent(User $user, UserDocument $document): void
+    {
+        abort_if($document->user_id !== $user->id, 404, 'Documento não encontrado para este usuário.');
     }
 }
