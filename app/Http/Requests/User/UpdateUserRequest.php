@@ -31,4 +31,12 @@ class UpdateUserRequest extends FormRequest
         ];
     }
 
+    public function validated($key = null, $default = null): array
+    {
+        $data = parent::validated();
+
+        $data['user_type_id'] = $data['type'];
+        unset($data['type']);
+        return $data;
+    }
 }
