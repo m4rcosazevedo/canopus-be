@@ -11,7 +11,7 @@ class UserDocumentRepository
     public function paginate(User $user): LengthAwarePaginator
     {
         return $user->documents()
-            ->with(['documentType', 'user'])
+            ->with(UserDocument::DEFAULT_RELATIONS)
             ->paginate();
     }
 

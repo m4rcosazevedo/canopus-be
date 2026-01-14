@@ -14,6 +14,11 @@ class State extends BaseModel
         return $this->hasMany(City::class);
     }
 
+    public function userDocuments(): HasMany
+    {
+        return $this->hasMany(UserDocument::class);
+    }
+
     /** Attributes */
     public function setAbbrAttribute($value)
     {

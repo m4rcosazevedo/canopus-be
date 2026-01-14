@@ -15,14 +15,15 @@ class UpdateUserDocumentRequest extends FormRequest
     {
         return [
             'issuer' => ['nullable', 'string', 'max:50'],
-            'state' => ['nullable', 'string', 'size:2'],
-            'issued_at' => ['nullable', 'date', 'before_or_equal:today'],
+            'state_id' => 'required|exists:states,id',
+            'issued_at' => ['nullable', 'date', 'before_or_equal:now'],
         ];
     }
 
     public function messages(): array
     {
         return [
+            'state_id.exists' => 'O estado selecionado é inválido.',
             'issued_at.before_or_equal' => 'A data de emissão não pode ser futura.',
         ];
     }

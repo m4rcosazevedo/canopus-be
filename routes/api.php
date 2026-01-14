@@ -6,12 +6,14 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClassRegistrationController;
+use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDocumentController;
+use App\Http\Controllers\UserTypeController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -31,6 +33,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('/{user}/address', UserAddressController::class);
     });
     Route::apiResource('/user', UserController::class);
+
+    /** User Type */
+    Route::group(['prefix' => '/user-type'], function () {
+        Route::get('/options', [UserTypeController::class, 'options']);
+    });
+    Route::apiResource('user-type', UserTypeController::class);
 
     /** Plans */
     Route::group(['prefix' => '/plan'], function () {
@@ -76,4 +84,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/streetTypes', [AddressController::class, 'streetTypes']);
     });
     Route::apiResource('address', AddressController::class);
+
+    /** Document Type */
+    Route::group(['prefix' => '/document-type'], function () {
+        Route::get('/options', [DocumentTypeController::class, 'options']);
+    });
+    Route::apiResource('document-type', DocumentTypeController::class);
 });

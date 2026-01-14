@@ -6,16 +6,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserDocument extends BaseModel
 {
-    public const DEFAULT_RELATIONS = ['user', 'documentType'];
+    public const DEFAULT_RELATIONS = ['documentType', 'user', 'state'];
 
     protected $fillable = [
         'user_id',
         'document_type_id',
         'number',
         'issuer',
-        'state',
+        'state_id',
         'issued_at'
     ];
+
+    protected $casts = [
+        'issued_at' => 'date',
+    ];
+
+    /** Relationships */
 
     public function user(): BelongsTo
     {
@@ -25,5 +31,10 @@ class UserDocument extends BaseModel
     public function documentType(): BelongsTo
     {
         return $this->belongsTo(DocumentType::class, 'document_type_id');
+    }
+
+    public function state(): BelongsTo
+    {
+        return $this->belongsTo(State::class);
     }
 }

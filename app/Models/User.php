@@ -19,6 +19,7 @@ class User extends Authenticatable
 
     const DEFAULT_RELATIONS = [
         'userType',
+        'documents.state',
         'documents.documentType',
         'addresses.address.city.state',
     ];

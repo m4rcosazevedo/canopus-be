@@ -16,7 +16,7 @@ class UserDocumentResource extends JsonResource
             "documentType"  => new DocumentTypeResource($this->whenLoaded('documentType')),
             "number"        => $this->resource->number,
             "issuer"        => $this->resource->issuer,
-            "state"         => $this->resource->state,
+            "state"         => new StateResource($this->whenLoaded('state')),
             "issuedAt"      => $this->resource->issued_at ? Carbon::parse($this->resource->issued_at)->format('Y-m-d') : null,
             "createdAt"     => $this->resource->created_at,
             "updatedAt"     => $this->resource->updated_at,
