@@ -11,7 +11,6 @@ class UserRepository
     {
         return User::with(User::DEFAULT_RELATIONS)
             ->filter(new UserFilter(request()))
-            ->orderByDesc('id')
             ->paginate();
     }
 

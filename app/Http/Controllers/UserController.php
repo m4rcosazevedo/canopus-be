@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Requests\User\UserListRequest;
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
@@ -15,8 +16,9 @@ class UserController extends Controller
         protected UserService $service
     ) {}
 
-    public function index(): AnonymousResourceCollection
+    public function index(UserListRequest $request): AnonymousResourceCollection
     {
+        $request->validated();
         $users = $this->service->list();
         return UserResource::collection($users);
     }
