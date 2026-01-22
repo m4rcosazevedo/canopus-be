@@ -22,12 +22,18 @@ class ReportService
         $filename = 'reports/' . $date . '-' . $report->id . '-' . ($report->name ?? 'report') . '.' . $report->format;
 
         if ($report->format === 'pdf') {
+            $layout = $this->calculateLayout($report->parameters['fields']);
+
             $pdf = Pdf::loadView($report->template ?? 'reports.default', [
                 'data' => $processedData,
                 'title' => $report->parameters['title'] ?? 'Relatório',
                 'queryDisplay' => $report->parameters['queryDisplay'] ?? [],
-                'fields' => $report->parameters['fields']
+                'fields' => $report->parameters['fields'],
+                'fieldChunks' => $layout['chunks']
             ]);
+
+            $pdf->setPaper('a4', $layout['orientation']);
+
             Storage::disk('local')->put($filename, $pdf->output());
         } elseif (in_array($report->format, ['csv', 'xlsx'])) {
              Excel::store(new GenericExport($processedData, $report->parameters['fields']), $filename, 'local');
@@ -35,6 +41,33 @@ class ReportService
 
         $report->path = $filename;
         $report->save();
+    }
+
+    protected function calculateLayout($fields)
+    {
+        $maxPortrait = 7;
+        $maxLandscape = 12;
+
+        $count = count($fields);
+
+        if ($count <= $maxPortrait) {
+            return [
+                'orientation' => 'portrait',
+                'chunks' => [$fields]
+            ];
+        }
+
+        if ($count <= $maxLandscape) {
+            return [
+                'orientation' => 'landscape',
+                'chunks' => [$fields]
+            ];
+        }
+
+        return [
+            'orientation' => 'landscape',
+            'chunks' => array_chunk($fields, $maxLandscape)
+        ];
     }
 
     protected function fetchDataFromEndpoint(Report $report)

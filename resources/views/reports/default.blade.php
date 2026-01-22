@@ -10,6 +10,7 @@
         th { background-color: #f2f2f2; }
         .header { margin-bottom: 20px; }
         .meta { margin-bottom: 10px; font-size: 11px; color: #555; }
+        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>
@@ -24,23 +25,33 @@
         @endif
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                @foreach($fields as $field)
-                    <th>{{ $field['title'] }}</th>
-                @endforeach
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($data as $row)
+    @php
+        $chunks = $fieldChunks ?? [$fields];
+    @endphp
+
+    @foreach($chunks as $index => $chunkFields)
+        @if($index > 0)
+            <div class="page-break"></div>
+        @endif
+
+        <table>
+            <thead>
                 <tr>
-                    @foreach($fields as $field)
-                        <td>{{ $row[$field['title']] ?? '' }}</td>
+                    @foreach($chunkFields as $field)
+                        <th>{{ $field['title'] }}</th>
                     @endforeach
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach($data as $row)
+                    <tr>
+                        @foreach($chunkFields as $field)
+                            <td>{{ $row[$field['title']] ?? '' }}</td>
+                        @endforeach
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endforeach
 </body>
 </html>
