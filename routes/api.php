@@ -9,6 +9,7 @@ use App\Http\Controllers\ClassRegistrationController;
 use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PlanController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UserController;
@@ -90,4 +91,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/options', [DocumentTypeController::class, 'options']);
     });
     Route::apiResource('document-type', DocumentTypeController::class);
+
+    /** Reports */
+    Route::group(['prefix' => '/report'], function () {
+        Route::post('/', [ReportController::class, 'store']);
+        Route::get('/', [ReportController::class, 'index']);
+        Route::get('/{report}', [ReportController::class, 'show']);
+        Route::get('/{report}/download', [ReportController::class, 'download']);
+    });
 });
