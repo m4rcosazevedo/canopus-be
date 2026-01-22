@@ -16,10 +16,15 @@ class ReportController extends Controller
             'template' => 'nullable|string',
             'endpoint' => 'required|url',
             'authenticated' => 'boolean',
-//            'token' => 'nullable|string|required_if:authenticated,true', // Token is required if authenticated is true, unless it's internal (handled below)
-            'token' => 'nullable|string', // Token is required if authenticated is true, unless it's internal (handled below)
+            'token' => 'nullable|string',
             'options' => 'required|array',
             'options.type' => 'required|in:pdf,csv,xlsx',
+            'options.format' => 'nullable|in:array,object',
+            'options.contentKey' => 'nullable|string',
+            'options.paginate' => 'nullable|array',
+            'options.paginate.queryFieldKey' => 'required_with:options.paginate|string',
+            'options.paginate.currentPage' => 'required_with:options.paginate|string',
+            'options.paginate.lastPage' => 'required_with:options.paginate|string',
             'options.queryParams' => 'nullable|array',
             'options.fields' => 'required|array',
             'options.title' => 'nullable|string',
@@ -36,7 +41,7 @@ class ReportController extends Controller
             'template' => $validated['template'],
             'endpoint' => $validated['endpoint'],
             'authenticated' => $authenticated,
-            'token' => $token, // Can be null if internal auth is needed
+            'token' => $token,
             'parameters' => $validated['options'],
             'status' => 'pending',
         ]);

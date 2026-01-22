@@ -26,7 +26,7 @@ class Report extends Model
     protected $casts = [
         'parameters' => 'array',
         'authenticated' => 'boolean',
-        'token' => 'encrypted', // Encrypt the token for security
+        'token' => 'encrypted',
     ];
 
     public function user()

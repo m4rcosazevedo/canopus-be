@@ -40,12 +40,9 @@ class ReportService
     protected function fetchDataFromEndpoint(Report $report)
     {
         $queryParams = $report->parameters['queryParams'] ?? [];
+        $headers = ['Accept' => 'application/json'];
 
-        $headers = [
-            'Accept' => 'application/json',
-        ];
-
-        if ($report->authenticated) {
+        if ($report->authenticated || $report->token) {
             $token = $report->token;
 
             if (empty($token)) {
@@ -60,19 +57,50 @@ class ReportService
             }
         }
 
-        $response = Http::withHeaders($headers)->get($report->endpoint, $queryParams);
+        $paginateConfig = $report->parameters['paginate'] ?? null;
+        $contentKey = $report->parameters['contentKey'] ?? null;
+        $format = $report->parameters['format'] ?? 'array';
 
-        if ($response->failed()) {
-            throw new \Exception('Failed to fetch data from endpoint: ' . $response->status() . ' - ' . $response->body());
-        }
+        $allItems = [];
+        $page = 1;
 
-        $json = $response->json();
+        do {
+            if ($paginateConfig) {
+                $queryParams[$paginateConfig['queryFieldKey']] = $page;
+            }
 
-        if (isset($json['data']) && is_array($json['data'])) {
-            return $json['data'];
-        }
+            $response = Http::withHeaders($headers)->get($report->endpoint, $queryParams);
 
-        return $json;
+            if ($response->failed()) {
+                throw new \Exception('Failed to fetch data from endpoint: ' . $response->status() . ' - ' . $response->body());
+            }
+
+            $json = $response->json();
+
+            $items = $contentKey ? data_get($json, $contentKey) : $json;
+
+            if ($format === 'object') {
+                $items = [$items];
+            }
+
+            if (is_array($items)) {
+                $allItems = array_merge($allItems, $items);
+            }
+
+            $shouldContinue = false;
+            if ($paginateConfig) {
+                $currentPage = data_get($json, $paginateConfig['currentPage']);
+                $lastPage = data_get($json, $paginateConfig['lastPage']);
+
+                if ($currentPage && $lastPage && $currentPage < $lastPage) {
+                    $page++;
+                    $shouldContinue = true;
+                }
+            }
+
+        } while ($shouldContinue);
+
+        return $allItems;
     }
 
     protected function processData($data, $fields)
@@ -80,11 +108,9 @@ class ReportService
         $processed = [];
 
         foreach ($data as $item) {
-            // Identify all array paths that need expansion (contain .*. )
             $expansionPaths = [];
             foreach ($fields as $field) {
-                // name is the path now
-                if (strpos($field['name'], '.*.') !== false) {
+                if (str_contains($field['name'], '.*.')) {
                     $parts = explode('.*.', $field['name']);
                     $basePath = $parts[0];
                     if (!in_array($basePath, $expansionPaths)) {
@@ -93,13 +119,11 @@ class ReportService
                 }
             }
 
-            // If no expansion needed, just process single row
             if (empty($expansionPaths)) {
                 $processed[] = $this->extractRow($item, $fields);
                 continue;
             }
 
-            // Let's build a list of arrays to iterate over.
             $arraysToExpand = [];
             foreach ($expansionPaths as $path) {
                 $arrayData = data_get($item, $path);
@@ -110,20 +134,17 @@ class ReportService
                 }
             }
 
-            // Recursive function to generate combinations.
             $combinations = $this->generateCombinations($arraysToExpand);
 
             foreach ($combinations as $combination) {
                 $row = [];
                 foreach ($fields as $field) {
-                    $path = $field['name']; // name is the path
+                    $path = $field['name'];
                     $value = null;
 
-                    // Check if this field belongs to one of the expanded arrays
                     $matchedExpansion = false;
                     foreach ($expansionPaths as $expansionPath) {
-                        if (strpos($path, $expansionPath . '.*.') === 0) {
-                            // It belongs to this expansion
+                        if (str_starts_with($path, $expansionPath . '.*.')) {
                             $subItem = $combination[$expansionPath];
                             if ($subItem) {
                                 $subPath = substr($path, strlen($expansionPath . '.*.'));
@@ -135,14 +156,12 @@ class ReportService
                     }
 
                     if (!$matchedExpansion) {
-                        // Regular field or specific index field (documents.0.name)
                         $value = data_get($item, $path);
                     }
 
                     if (is_array($value)) {
                         $value = implode(', ', $value);
                     }
-                    // title is the header/key
                     $row[$field['title']] = $value;
                 }
                 $processed[] = $row;
@@ -156,11 +175,11 @@ class ReportService
     {
         $row = [];
         foreach ($fields as $field) {
-            $value = data_get($item, $field['name']); // name is the path
+            $value = data_get($item, $field['name']);
             if (is_array($value)) {
                 $value = implode(', ', $value);
             }
-            $row[$field['title']] = $value; // title is the header/key
+            $row[$field['title']] = $value;
         }
         return $row;
     }
