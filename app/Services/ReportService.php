@@ -123,6 +123,11 @@ class ReportService
         $contentKey = $report->parameters['contentKey'] ?? null;
         $format = $report->parameters['format'] ?? 'array';
 
+        $endpoint = $report->endpoint;
+        if (str_starts_with($endpoint, '/')) {
+            $endpoint = rtrim(config('app.url'), '/') . $endpoint;
+        }
+
         $allItems = [];
         $page = 1;
 
@@ -131,7 +136,7 @@ class ReportService
                 $queryParams[$paginateConfig['queryFieldKey']] = $page;
             }
 
-            $response = Http::withHeaders($headers)->get($report->endpoint, $queryParams);
+            $response = Http::withHeaders($headers)->get($endpoint, $queryParams);
 
             if ($response->failed()) {
                 throw new \Exception('Failed to fetch data from endpoint: ' . $response->status() . ' - ' . $response->body());

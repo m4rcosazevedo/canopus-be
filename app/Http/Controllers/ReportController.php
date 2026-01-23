@@ -32,7 +32,7 @@ class ReportController extends Controller
         return ReportResource::collection($this->repository->paginate($request));
     }
 
-    public function store(StoreReportRequest $request): JsonResponse
+    public function store(StoreReportRequest $request): ReportResource
     {
         $this->authorize('create', Report::class);
 
@@ -41,10 +41,7 @@ class ReportController extends Controller
             $request->validated()
         );
 
-        return response()->json([
-            'message' => 'Relatório criado com sucesso',
-            'report' => $report
-        ], 202);
+        return new ReportResource($report->load('user'));
     }
 
     public function show(Report $report): ReportResource

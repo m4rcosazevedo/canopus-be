@@ -70,7 +70,6 @@ Controller → Service → Repository
 
 - PSR-12 obrigatório
 - Tipagem forte sempre que possível
-- strict_types=1 quando aplicável
 - Métodos pequenos e coesos
 
 ### Naming

@@ -18,7 +18,14 @@ class StoreReportRequest extends FormRequest
         return [
             'name' => ['nullable', 'string'],
             'template' => ['nullable', 'string'],
-            'endpoint' => ['required', 'url'],
+            'endpoint' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!str_starts_with($value, '/') && !filter_var($value, FILTER_VALIDATE_URL)) {
+                        $fail('O campo :attribute deve ser uma URL válida ou iniciar com "/".');
+                    }
+                },
+            ],
             'authenticated' => ['boolean'],
             'token' => ['nullable', 'string'],
             'options' => ['required', 'array'],
