@@ -1,86 +1,71 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use App\Jobs\GenerateReportJob;
+use App\Http\Requests\Report\StoreReportRequest;
+use App\Http\Resources\ReportResource;
 use App\Models\Report;
+use App\Repositories\ReportRepository;
+use App\Services\ReportService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
-    public function store(Request $request)
+    use AuthorizesRequests;
+
+    public function __construct(
+        protected ReportService $reportService,
+        protected ReportRepository $repository
+    ) {}
+
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $validated = $request->validate([
-            'name' => 'nullable|string',
-            'template' => 'nullable|string',
-            'endpoint' => 'required|url',
-            'authenticated' => 'boolean',
-            'token' => 'nullable|string',
-            'options' => 'required|array',
-            'options.type' => 'required|in:pdf,csv,xlsx',
-            'options.format' => 'nullable|in:array,object',
-            'options.contentKey' => 'nullable|string',
-            'options.paginate' => 'nullable|array',
-            'options.paginate.queryFieldKey' => 'required_with:options.paginate|string',
-            'options.paginate.currentPage' => 'required_with:options.paginate|string',
-            'options.paginate.lastPage' => 'required_with:options.paginate|string',
-            'options.queryParams' => 'nullable|array',
-            'options.fields' => 'required|array',
-            'options.title' => 'nullable|string',
-            'options.queryDisplay' => 'nullable|array',
-        ]);
+        $this->authorize('viewAny', Report::class);
 
-        $token = $request->input('token');
-        $authenticated = $request->boolean('authenticated');
+        return ReportResource::collection($this->repository->paginate($request));
+    }
 
-        $report = Report::create([
-            'user_id' => $request->user()->id,
-            'name' => $validated['name'] ?? 'report_' . now()->timestamp,
-            'format' => $validated['options']['type'],
-            'template' => $validated['template'],
-            'endpoint' => $validated['endpoint'],
-            'authenticated' => $authenticated,
-            'token' => $token,
-            'parameters' => $validated['options'],
-            'status' => 'pending',
-        ]);
+    public function store(StoreReportRequest $request): JsonResponse
+    {
+        $this->authorize('create', Report::class);
 
-        GenerateReportJob::dispatch($report);
+        $report = $this->reportService->createReport(
+            $request->user(),
+            $request->validated()
+        );
 
         return response()->json([
-            'message' => 'Report generation started',
+            'message' => 'Relatório criado com sucesso',
             'report' => $report
         ], 202);
     }
 
-    public function download(Report $report)
+    public function show(Report $report): ReportResource
     {
-        if ($report->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('view', $report);
+
+        return new ReportResource($this->repository->find($report));
+    }
+
+    public function download(Report $report): JsonResponse|StreamedResponse
+    {
+        $this->authorize('download', $report);
 
         if ($report->status !== 'completed') {
-            return response()->json(['message' => 'Report is not ready yet'], 400);
+            return response()->json(['message' => 'Relatório ainda não está pronto'], 400);
         }
 
         if (!Storage::disk('local')->exists($report->path)) {
-             return response()->json(['message' => 'File not found'], 404);
+            return response()->json(['message' => 'Arquivo não encontrado'], 404);
         }
 
         return Storage::disk('local')->download($report->path);
-    }
-
-    public function index()
-    {
-        return Report::where('user_id', auth()->id())->latest()->get();
-    }
-
-    public function show(Report $report)
-    {
-         if ($report->user_id !== auth()->id()) {
-            abort(403);
-        }
-        return $report;
     }
 }

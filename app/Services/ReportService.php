@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Jobs\GenerateReportJob;
 use App\Models\Report;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +14,25 @@ use App\Exports\GenericExport;
 
 class ReportService
 {
+    public function createReport(User $user, array $data): Report
+    {
+        $report = Report::create([
+            'user_id' => $user->id,
+            'name' => $data['name'] ?? 'report_' . now()->timestamp,
+            'format' => $data['options']['type'],
+            'template' => $data['template'] ?? null,
+            'endpoint' => $data['endpoint'],
+            'authenticated' => $data['authenticated'] ?? false,
+            'token' => $data['token'] ?? null,
+            'parameters' => $data['options'],
+            'status' => 'pending',
+        ]);
+
+        GenerateReportJob::dispatch($report);
+
+        return $report;
+    }
+
     public function generate(Report $report)
     {
         $data = $this->fetchDataFromEndpoint($report);
