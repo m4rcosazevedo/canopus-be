@@ -26,4 +26,11 @@ class UserAddress extends BaseModel
     {
         return $this->belongsTo(Address::class);
     }
+
+    /** Scopes */
+    public function scopeDefault($query)
+    {
+        return $query->where('is_default', true);
+    }
+
 }

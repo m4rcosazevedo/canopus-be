@@ -18,6 +18,7 @@ class UserDocumentResource extends JsonResource
             "issuer"        => $this->resource->issuer,
             "state"         => new StateResource($this->whenLoaded('state')),
             "issuedAt"      => $this->resource->issued_at ? Carbon::parse($this->resource->issued_at)->format('Y-m-d') : null,
+            "isDefault"     => $this->resource->is_default,
             "createdAt"     => $this->resource->created_at,
             "updatedAt"     => $this->resource->updated_at,
         ];

@@ -14,11 +14,13 @@ class UserDocument extends BaseModel
         'number',
         'issuer',
         'state_id',
-        'issued_at'
+        'issued_at',
+        'is_default'
     ];
 
     protected $casts = [
         'issued_at' => 'date',
+        'is_default' => 'boolean',
     ];
 
     /** Relationships */
@@ -37,4 +39,11 @@ class UserDocument extends BaseModel
     {
         return $this->belongsTo(State::class);
     }
+
+    /** Scopes */
+    public function scopeDefault($query)
+    {
+        return $query->where('is_default', true);
+    }
+
 }

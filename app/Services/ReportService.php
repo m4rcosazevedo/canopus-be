@@ -24,10 +24,18 @@ class ReportService
         if ($report->format === 'pdf') {
             $layout = $this->calculateLayout($report->parameters['fields']);
 
+            $queryDisplay = collect($report->parameters['queryDisplay'] ?? [])
+                ->filter(function ($item) {
+                    return isset($item['value']) && trim((string) $item['value']) !== '';
+                })
+                ->values()
+                ->toArray();
+
+
             $pdf = Pdf::loadView($report->template ?? 'reports.default', [
                 'data' => $processedData,
                 'title' => $report->parameters['title'] ?? 'Relatório',
-                'queryDisplay' => $report->parameters['queryDisplay'] ?? [],
+                'queryDisplay' => $queryDisplay,
                 'fields' => $report->parameters['fields'],
                 'fieldChunks' => $layout['chunks']
             ]);

@@ -7,54 +7,47 @@ use App\Http\Requests\UserDocument\UpdateUserDocumentRequest;
 use App\Http\Resources\UserDocumentResource;
 use App\Models\User;
 use App\Models\UserDocument;
-use App\Repositories\UserDocumentRepository;
+use App\Services\UserDocumentService;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class UserDocumentController extends Controller
 {
     public function __construct(
-        protected readonly UserDocumentRepository $repository
+        protected readonly UserDocumentService $service
     ) { }
 
     public function index(User $user): AnonymousResourceCollection
     {
-        $documents = $this->repository->paginate($user);
-        return UserDocumentResource::collection($documents);
+        return UserDocumentResource::collection(
+            $this->service->index($user)
+        );
     }
 
     public function show(User $user, UserDocument $document): UserDocumentResource
     {
-        $this->abortIfUserIsDifferent($user, $document);
-
-        $document = $this->repository->find($document);
-        return new UserDocumentResource($document);
+        return new UserDocumentResource(
+            $this->service->show($user, $document)
+        );
     }
 
     public function store(StoreUserDocumentRequest $request, User $user): UserDocumentResource
     {
-        $document = $this->repository->create($request->validated(), $user);
-        return new UserDocumentResource($document);
+        return new UserDocumentResource(
+            $this->service->create($user, $request->validated())
+        );
     }
 
     public function update(UpdateUserDocumentRequest $request, User $user, UserDocument $document): UserDocumentResource
     {
-        $this->abortIfUserIsDifferent($user, $document);
-
-        $updated = $this->repository->update($request->validated(), $document);
-        return new UserDocumentResource($updated);
+        return new UserDocumentResource(
+            $this->service->update($request->validated(), $user, $document)
+        );
     }
 
     public function destroy(User $user, UserDocument $document): Response
     {
-        $this->abortIfUserIsDifferent($user, $document);
-
-        $this->repository->delete($document);
+        $this->service->delete($user, $document);
         return response()->noContent();
-    }
-
-    private function abortIfUserIsDifferent(User $user, UserDocument $document): void
-    {
-        abort_if($document->user_id !== $user->id, 404, 'Documento não encontrado para este usuário.');
     }
 }

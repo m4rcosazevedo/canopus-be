@@ -11,6 +11,8 @@
         .header { margin-bottom: 20px; }
         .meta { margin-bottom: 10px; font-size: 11px; color: #555; }
         .page-break { page-break-before: always; }
+        h2 { margin-bottom: 8px; font-size: 11px; }
+        .content { background: #f2f2f2; padding: 8px; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
@@ -18,9 +20,12 @@
         <h1>{{ $title }}</h1>
         @if(!empty($queryDisplay))
             <div class="meta">
-                @foreach($queryDisplay as $item)
-                    <p><strong>{{ $item['name'] }}:</strong> {{ $item['value'] }}</p>
-                @endforeach
+                <h2>Filtros: </h2>
+                <div class="content">
+                    @foreach($queryDisplay as $item)
+                        <p><strong>{{ $item['name'] }}:</strong> {{ $item['value'] }}</p>
+                    @endforeach
+                </div>
             </div>
         @endif
     </div>
