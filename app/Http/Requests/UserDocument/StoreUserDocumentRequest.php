@@ -37,6 +37,7 @@ class StoreUserDocumentRequest extends FormRequest
             'issuer' => ['nullable', 'string', 'max:50'],
             'state_id' => 'required|exists:states,id',
             'issued_at' => ['nullable', 'date', 'before_or_equal:now'],
+            'is_default' => ['nullable', 'boolean'],
         ];
     }
 

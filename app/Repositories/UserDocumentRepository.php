@@ -36,4 +36,30 @@ class UserDocumentRepository
     {
         return $userDocument->delete();
     }
+
+    public function getAnotherForUser(int $userId, int $ignoreId): ?UserDocument
+    {
+        return UserDocument::where('user_id', $userId)
+            ->where('id', '!=', $ignoreId)
+            ->orderByDesc('is_default')
+            ->orderByDesc('created_at')
+            ->first();
+    }
+
+    public function setAsDefault(UserDocument $userDocument): void
+    {
+        $userDocument->update(['is_default' => true]);
+    }
+
+    public function clearDefaultForUser(int $userId): void
+    {
+        UserDocument::where('user_id', $userId)
+            ->where('is_default', true)
+            ->update(['is_default' => false]);
+    }
+
+    public function countByUser(int $userId): int
+    {
+        return UserDocument::where('user_id', $userId)->count();
+    }
 }

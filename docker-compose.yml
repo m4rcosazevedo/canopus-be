@@ -14,6 +14,8 @@ services:
       - ./:/var/www
     networks:
       - canopus-network
+    depends_on:
+      - canopus-redis
 
   canopus-db:
     image: mysql:8.0
@@ -40,6 +42,17 @@ services:
     volumes:
       - ./:/var/www
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - canopus-network
+
+  canopus-redis:
+    image: redis:alpine
+    container_name: canopus-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./.docker/redis/data:/data
     networks:
       - canopus-network
 
