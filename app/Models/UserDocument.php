@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserDocument extends BaseModel
 {
+    use BelongsToTenant;
+
     public const DEFAULT_RELATIONS = ['documentType', 'user', 'state'];
 
     protected $fillable = [
+        'tenant_id',
         'user_id',
         'document_type_id',
         'number',

@@ -3,15 +3,18 @@
 namespace App\Models;
 
 use App\Queries\PlanAvailableQuery;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Plan extends BaseModel
 {
+    use BelongsToTenant;
+
     public const DEFAULT_RELATIONS = ['services', 'rules'];
 
     protected $fillable = [
-        'name', 'description', 'type', 'duration_in_days', 'max_classes_per_week',
+        'tenant_id', 'name', 'description', 'type', 'duration_in_days', 'max_classes_per_week',
         'total_class_credits', 'price', 'allow_makeup_classes', 'max_makeup_per_month',
         'can_freeze', 'max_freeze_days', 'status',
     ];

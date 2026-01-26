@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class StudentPlan extends BaseModel
 {
+    use BelongsToTenant;
+
     protected $fillable = [
+        'tenant_id',
         'user_id',
         'plan_id',
         'start_date',

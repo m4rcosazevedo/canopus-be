@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ClassModel extends BaseModel
 {
+    use BelongsToTenant;
+
     public const DEFAULT_RELATIONS = ['plan', 'user'];
     public const STATUS_ACTIVE = 'active';
     public const STATUS_INACTIVE = 'inactive';
@@ -14,7 +17,7 @@ class ClassModel extends BaseModel
     protected $table = 'classes';
 
     protected $fillable = [
-        'plan_id', 'user_id', 'weekday', 'start_time',
+        'tenant_id', 'plan_id', 'user_id', 'weekday', 'start_time',
         'end_time', 'capacity', 'room', 'status',
     ];
 

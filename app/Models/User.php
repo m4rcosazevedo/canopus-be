@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Builders\CustomBuilder;
 use App\Traits\Auditable;
+use App\Traits\BelongsToTenant;
 use App\Traits\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +16,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, Filterable, Auditable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, Filterable, Auditable, BelongsToTenant;
 
     const DEFAULT_RELATIONS = [
         'userType',
@@ -31,7 +32,7 @@ class User extends Authenticatable
         return new CustomBuilder($query);
     }
 
-    protected $fillable = ['name', 'email', 'cellphone', 'password', 'user_type_id'];
+    protected $fillable = ['name', 'email', 'cellphone', 'password', 'user_type_id', 'tenant_id'];
 
     protected $hidden = [
         'password',

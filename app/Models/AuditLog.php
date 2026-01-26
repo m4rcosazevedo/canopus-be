@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\MassPrunable;
 
 class AuditLog extends BaseNoAuditableModel
 {
-    use MassPrunable;
+    use MassPrunable, BelongsToTenant;
 
     protected $fillable = [
+        'tenant_id',
         'user_id',
         'user_email',
         'event',
