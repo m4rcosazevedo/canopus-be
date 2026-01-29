@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             StateSeeder::class,
             CitySeeder::class,
             TenantSeeder::class,
+            TenantPlanSeeder::class,
         ]);
 
 //        User::factory()->create([

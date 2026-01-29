@@ -11,6 +11,7 @@ use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StateController;
+use App\Http\Controllers\TenantSubscriptionController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDocumentController;
@@ -98,5 +99,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [ReportController::class, 'index']);
         Route::get('/{report}', [ReportController::class, 'show']);
         Route::get('/{report}/download', [ReportController::class, 'download']);
+    });
+
+    /** SaaS Subscription */
+    Route::group(['prefix' => '/subscription'], function () {
+        Route::get('/plans', [TenantSubscriptionController::class, 'index']);
+        Route::post('/subscribe', [TenantSubscriptionController::class, 'store']);
     });
 });
