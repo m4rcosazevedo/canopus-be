@@ -5,15 +5,15 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserTypeResource extends JsonResource
+class TenantResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->resource->id,
             'name' => $this->resource->name,
-            'description' => $this->resource->description,
-            'visible' => $this->resource->visible
+            'slug' => $this->resource->slug,
+            'domain' => $this->resource->domain
         ];
     }
 }

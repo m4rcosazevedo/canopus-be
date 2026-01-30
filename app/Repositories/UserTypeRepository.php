@@ -19,6 +19,7 @@ class UserTypeRepository
     {
         $options = $this->baseQuery($request)
             ->orderBy('description')
+            ->where('visible', true)
             ->get();
 
         return $options->map(fn($item) => [

@@ -11,6 +11,7 @@ use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StateController;
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDocumentController;
@@ -26,6 +27,8 @@ Route::middleware('auth:sanctum')->group(function () {
 //    Route::post('/signOut', [AuthController::class, 'signOut']);
     Route::post('/refreshToken', [AuthController::class, 'refreshToken']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
+
+    Route::apiResource('/tenant', TenantController::class);
 
     Route::get('/me', [AuthController::class, 'me']);
 

@@ -17,13 +17,16 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(
             prepend: [
+                EnsureFrontendRequestsAreStateful::class,
                 ForceJsonResponse::class
             ]
         );
 
-        $middleware->appendToGroup('api', [
-            EnsureFrontendRequestsAreStateful::class,
-        ]);
+        $middleware->api(
+            append: [
+                \App\Http\Middleware\ResolveTenant::class,
+            ]
+        );
 
         // Para aplicar em TODAS as requisições (Web e API)
         $middleware->append(AuditTransaction::class);

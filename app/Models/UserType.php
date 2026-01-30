@@ -9,6 +9,7 @@ class UserType extends BaseModel
     protected $fillable = [
         'name',
         'description',
+        'visible'
     ];
 
     public function user(): BelongsTo
