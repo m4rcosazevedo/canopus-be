@@ -12,6 +12,7 @@ use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\TenantPlanController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDocumentController;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/signIn', [AuthController::class, 'signIn']);
+Route::get('/tenant-plans', [TenantPlanController::class, 'list']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -29,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/change-password', [AuthController::class, 'changePassword']);
 
     Route::apiResource('/tenant', TenantController::class);
+    Route::apiResource('/tenant-plan', TenantPlanController::class);
 
     Route::get('/me', [AuthController::class, 'me']);
 

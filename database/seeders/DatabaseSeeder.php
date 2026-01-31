@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             DocumentTypeSeeder::class,
             StateSeeder::class,
             CitySeeder::class,
+            TenantPlanSeeder::class,
         ]);
 
 //        User::factory()->create([

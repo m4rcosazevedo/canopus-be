@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 
-use App\Http\Requests\Tenant\TenantRequest;
+use App\Http\Requests\Tenant\TenantPlanRequest;
 use App\Http\Resources\TenantResource;
 use App\Models\Tenant;
 use App\Repositories\TenantRepository;
@@ -26,14 +26,14 @@ class TenantController extends Controller
         return new TenantResource($tenant);
     }
 
-    public function store(TenantRequest $request): TenantResource
+    public function store(TenantPlanRequest $request): TenantResource
     {
         return new TenantResource(
             $this->repository->create($request->validated())
         );
     }
 
-    public function update(TenantRequest $request, Tenant $tenant): TenantResource
+    public function update(TenantPlanRequest $request, Tenant $tenant): TenantResource
     {
         return new TenantResource(
             $this->repository->update($tenant, $request->validated())
