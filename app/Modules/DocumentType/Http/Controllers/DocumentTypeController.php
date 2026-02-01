@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Modules\DocumentType\Http\Controllers;
 
-use App\Http\Requests\DocumentType\DocumentTypeRequest;
-use App\Http\Resources\DocumentTypeResource;
-use App\Models\DocumentType;
-use App\Repositories\DocumentTypeRepository;
+use App\Http\Controllers\Controller;
+use App\Modules\DocumentType\Http\Requests\DocumentTypeRequest;
+use App\Modules\DocumentType\Http\Resources\DocumentTypeResource;
+use App\Modules\DocumentType\Models\DocumentType;
+use App\Modules\DocumentType\Repositories\DocumentTypeRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

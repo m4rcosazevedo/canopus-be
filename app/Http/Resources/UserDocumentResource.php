@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Modules\DocumentType\Http\Resources\DocumentTypeResource;
 use App\Modules\State\Http\Resources\StateResource;
 use Carbon\Carbon;
 use Illuminate\Http\Request;

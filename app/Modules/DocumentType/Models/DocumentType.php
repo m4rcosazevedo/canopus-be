@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\DocumentType\Models;
+
+use App\Models\BaseModel;
 
 class DocumentType extends BaseModel
 {

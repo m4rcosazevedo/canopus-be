@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Modules\DocumentType\Repositories;
 
-use App\Models\DocumentType;
+use App\Modules\DocumentType\Models\DocumentType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

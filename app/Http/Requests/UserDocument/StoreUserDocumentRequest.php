@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\UserDocument;
 
-use App\Models\DocumentType;
+use App\Modules\DocumentType\Models\DocumentType;
 use App\Rules\Cnpj;
 use App\Rules\Cpf;
 use Illuminate\Foundation\Http\FormRequest;
