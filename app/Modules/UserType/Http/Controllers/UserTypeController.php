@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Modules\UserType\Http\Controllers;
 
-use App\Models\UserType;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use App\Http\Controllers\Controller;
+use App\Modules\UserType\Http\Requests\UserTypeRequest;
+use App\Modules\UserType\Http\Resources\UserTypeResource;
+use App\Modules\UserType\Model\UserType;
+use App\Modules\UserType\Repositories\UserTypeRepository;
 use Illuminate\Http\JsonResponse;
-use App\Http\Resources\UserTypeResource;
-use App\Repositories\UserTypeRepository;
-use App\Http\Requests\UserType\UserTypeRequest;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class UserTypeController extends Controller
 {

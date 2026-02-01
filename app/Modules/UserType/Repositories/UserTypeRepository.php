@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Modules\UserType\Repositories;
 
-use App\Models\UserType;
-use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
+use App\Modules\UserType\Model\UserType;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class UserTypeRepository
 {
@@ -18,8 +18,8 @@ class UserTypeRepository
     public function options(Request $request): Collection
     {
         $options = $this->baseQuery($request)
-            ->orderBy('description')
-            ->where('visible', true)
+            ->orderByDescription()
+            ->visible()
             ->get();
 
         return $options->map(fn($item) => [

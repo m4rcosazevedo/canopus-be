@@ -17,7 +17,7 @@ use App\Http\Controllers\TenantPlanController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDocumentController;
-use App\Http\Controllers\UserTypeController;
+use App\Modules\UserType\Http\Controllers\UserTypeController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Builders\CustomBuilder;
+use App\Modules\UserType\Model\UserType;
 use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use App\Traits\Filterable;
