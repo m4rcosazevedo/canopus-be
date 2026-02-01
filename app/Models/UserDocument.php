@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Modules\State\Model\State;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserDocument extends BaseModel

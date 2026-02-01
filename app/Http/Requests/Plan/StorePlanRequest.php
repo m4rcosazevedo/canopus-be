@@ -2,8 +2,7 @@
 
 namespace App\Http\Requests\Plan;
 
-use App\Enum\UserTypeEnum;
-use App\Models\Plan;
+use App\Modules\UserType\Enums\UserTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 

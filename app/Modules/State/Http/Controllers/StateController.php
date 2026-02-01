@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Modules\State\Http\Controllers;
 
-use App\Models\State;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use App\Http\Controllers\Controller;
+use App\Modules\State\Http\Requests\StateRequest;
+use App\Modules\State\Http\Resources\StateResource;
+use App\Modules\State\Model\State;
+use App\Modules\State\Repositories\StateRepository;
 use Illuminate\Http\JsonResponse;
-use App\Http\Resources\StateResource;
-use App\Repositories\StateRepository;
-use App\Http\Requests\State\StateRequest;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class StateController extends Controller
 {

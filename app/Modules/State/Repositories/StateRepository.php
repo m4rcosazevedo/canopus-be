@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Modules\State\Repositories;
 
-use App\Models\State;
-use App\Filters\StateFilter;
-use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
+use App\Modules\State\Filters\StateFilter;
+use App\Modules\State\Model\State;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 
 class StateRepository

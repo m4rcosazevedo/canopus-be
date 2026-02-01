@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enum;
+namespace App\Modules\UserType\Enums;
 
 enum UserTypeEnum: string
 {

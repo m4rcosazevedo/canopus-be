@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\State\Model;
 
+use App\Models\BaseModel;
+use App\Models\City;
+use App\Models\UserDocument;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class State extends BaseModel
