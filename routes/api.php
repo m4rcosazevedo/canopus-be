@@ -8,6 +8,7 @@ use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClassRegistrationController;
 use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\PaymentCallbackController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StateController;
@@ -23,6 +24,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/signIn', [AuthController::class, 'signIn']);
 Route::get('/tenant-plans', [TenantPlanController::class, 'list']);
+
+// Webhook Callback (Public)
+Route::post('/payments/callback', [PaymentCallbackController::class, 'handle']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
