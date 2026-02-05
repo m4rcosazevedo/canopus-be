@@ -30,7 +30,19 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        return new UserResource(Auth::user());
+        return  $this->authenticatedUserResource();
+    }
+
+    public function me(): UserResource
+    {
+        return $this->authenticatedUserResource();
+    }
+
+    private function authenticatedUserResource(): UserResource
+    {
+        return new UserResource(
+            Auth::user()->load(['tenant', 'userType'])
+        );
     }
 
     public function logout(Request $request): JsonResponse
@@ -41,11 +53,6 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return response()->json(['message' => 'Logout realizado']);
-    }
-
-    public function me(): UserResource
-    {
-        return new UserResource(Auth::user());
     }
 
     public function register(RegisterRequest $request): JsonResponse

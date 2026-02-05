@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use App\Builders\CustomBuilder;
+use App\Modules\Tenant\Models\Tenant;
+use App\Modules\Tenant\Traits\BelongsToTenant;
 use App\Modules\UserType\Model\UserType;
 use App\Traits\Auditable;
-use App\Traits\BelongsToTenant;
 use App\Traits\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

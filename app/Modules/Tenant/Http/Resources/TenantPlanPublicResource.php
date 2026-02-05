@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Modules\Tenant\Http\Resources;
 
 class TenantPlanPublicResource extends TenantPlanResource
 {

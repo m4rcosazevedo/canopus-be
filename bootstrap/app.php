@@ -24,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->api(
             append: [
-                \App\Http\Middleware\ResolveTenant::class,
+                \App\Modules\Tenant\Http\Middleware\ResolveTenant::class,
             ]
         );
 

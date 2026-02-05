@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Modules\Tenant\Http\Controllers;
 
 
-use App\Http\Requests\Tenant\TenantRequest;
-use App\Http\Resources\TenantResource;
-use App\Models\Tenant;
+use App\Http\Controllers\Controller;
 use App\Modules\Tenant\Http\Requests\TenantRegisterRequest;
+use App\Modules\Tenant\Http\Requests\TenantRequest;
+use App\Modules\Tenant\Http\Resources\TenantResource;
+use App\Modules\Tenant\Models\Tenant;
+use App\Modules\Tenant\Repositories\TenantRepository;
 use App\Modules\UserType\Enums\UserTypeIdEnum;
-use App\Repositories\TenantRepository;
 use App\Services\UserDocumentService;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;

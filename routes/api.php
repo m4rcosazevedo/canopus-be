@@ -10,13 +10,13 @@ use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\PaymentCallbackController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\TenantController;
-use App\Http\Controllers\TenantPlanController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDocumentController;
 use App\Modules\DocumentType\Http\Controllers\DocumentTypeController;
 use App\Modules\State\Http\Controllers\StateController;
+use App\Modules\Tenant\Http\Controllers\TenantController;
+use App\Modules\Tenant\Http\Controllers\TenantPlanController;
 use App\Modules\UserType\Http\Controllers\UserTypeController;
 use Illuminate\Support\Facades\Route;
 

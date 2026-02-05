@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Modules\Tenant\Repositories;
 
-use App\Models\Tenant;
+use App\Modules\Tenant\Models\Tenant;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class TenantRepository

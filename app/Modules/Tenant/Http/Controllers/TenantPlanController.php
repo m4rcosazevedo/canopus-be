@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Modules\Tenant\Http\Controllers;
 
-use App\Http\Requests\TenantPlan\TenantPlanRequest;
-use App\Http\Resources\TenantPlanPublicResource;
-use App\Models\TenantPlan;
-use App\Repositories\TenantPlanRepository;
-use App\Http\Resources\TenantPlanResource;
+use App\Http\Controllers\Controller;
+use App\Modules\Tenant\Http\Requests\TenantPlanRequest;
+use App\Modules\Tenant\Http\Resources\TenantPlanPublicResource;
+use App\Modules\Tenant\Http\Resources\TenantPlanResource;
+use App\Modules\Tenant\Models\TenantPlan;
+use App\Modules\Tenant\Repositories\TenantPlanRepository;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
