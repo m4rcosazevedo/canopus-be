@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Plan;
 
-use App\Modules\UserType\Enums\UserTypeEnum;
+use App\Enum\PlanTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
@@ -13,7 +13,7 @@ class UpdatePlanRequest extends FormRequest
         return [
             'name'                  => 'required|string|max:255',
             'description'           => 'string',
-            'type'                  => ['required', new Enum(UserTypeEnum::class)],
+            'type'                  => ['required', new Enum(PlanTypeEnum::class)],
             'duration_in_days'      => 'integer|min:1|max:365',
             'max_classes_per_week'  => 'integer|min:1|max:5',
             'total_class_credits'   => 'integer|min:1|max:250',

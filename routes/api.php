@@ -21,12 +21,18 @@ use App\Modules\UserType\Http\Controllers\UserTypeController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
-Route::post('/register', [AuthController::class, 'register']);
+//Route::post('/register', [AuthController::class, 'register']);
 Route::post('/signIn', [AuthController::class, 'signIn']);
-Route::get('/tenant-plans', [TenantPlanController::class, 'list']);
 
 // Webhook Callback (Public)
 Route::post('/payments/callback', [PaymentCallbackController::class, 'handle']);
+
+Route::group(['prefix' => '/subscription'], function () {
+    Route::get('/plans', [TenantPlanController::class, 'list']);
+//    Route::post('/subscribe', [TenantSubscriptionController::class, 'store']);
+});
+Route::post('/register', [TenantController::class, 'register']);
+
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {

@@ -39,4 +39,13 @@ class UpdateUserRequest extends FormRequest
         unset($data['type']);
         return $data;
     }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->cellphone) {
+            $this->merge([
+                'cellphone' => preg_replace('/[^0-9]/', '', $this->cellphone),
+            ]);
+        }
+    }
 }

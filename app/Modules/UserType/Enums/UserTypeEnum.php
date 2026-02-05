@@ -4,7 +4,8 @@ namespace App\Modules\UserType\Enums;
 
 enum UserTypeEnum: string
 {
-    case MONTHLY = 'monthly';
-    case PACKAGE = 'package';
-    case UNLIMITED = 'unlimited';
+    case ROOT = 'root';
+    case ADMINISTRATOR = 'administrator';
+    case INSTRUCTOR = 'instructor';
+    case STUDENT = 'student';
 }

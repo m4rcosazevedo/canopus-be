@@ -2,7 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Modules\UserType\Enums\UserTypeEnum;
+use App\Modules\UserType\Enums\UserTypeIdEnum;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -16,25 +17,36 @@ class UserTypeSeeder extends Seeder
         $date = now();
         DB::table('user_types')->insertOrIgnore([
             [
-                'id' => 1,
-                'name' => 'administrator',
-                'description' => '',
+                'id' => UserTypeIdEnum::ROOT,
+                'name' => UserTypeEnum::ROOT,
+                'description' => UserTypeEnum::ROOT,
                 'created_at' => $date,
-                'updated_at' => $date
+                'updated_at' => $date,
+                'visible' => false
             ],
             [
-                'id' => 2,
-                'name' => 'instructor',
-                'description' => '',
+                'id' => UserTypeIdEnum::ADMINISTRATOR,
+                'name' => UserTypeEnum::ADMINISTRATOR,
+                'description' => UserTypeEnum::ADMINISTRATOR,
                 'created_at' => $date,
-                'updated_at' => $date
+                'updated_at' => $date,
+                'visible' => false
             ],
             [
-                'id' => 3,
-                'name' => 'student',
-                'description' => '',
+                'id' => UserTypeIdEnum::INSTRUCTOR,
+                'name' => UserTypeEnum::INSTRUCTOR,
+                'description' => UserTypeEnum::INSTRUCTOR,
                 'created_at' => $date,
-                'updated_at' => $date
+                'updated_at' => $date,
+                'visible' => true
+            ],
+            [
+                'id' => UserTypeIdEnum::STUDENT,
+                'name' => UserTypeEnum::STUDENT,
+                'description' => UserTypeEnum::STUDENT,
+                'created_at' => $date,
+                'updated_at' => $date,
+                'visible' => true
             ],
         ]);
     }

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
 
             $table->foreignId('document_type_id')->constrained()->cascadeOnDelete();
-            $table->string('number', 50)->unique();
+            $table->string('number', 50); // ->unique();
             $table->string('issuer', 50)->nullable(); // SSP, DETRAN, etc
             $table->string('state', 2)->nullable();   // UF
             $table->date('issued_at')->nullable();

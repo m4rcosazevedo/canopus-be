@@ -25,7 +25,7 @@ class DocumentHelper
 
     public static function isCnpjValid(string $cnpj): bool
     {
-        $cnpj = self::onlyNumbers($cnpj);
+        $cnpj = preg_replace('/[^A-Z0-9]/', '', strtoupper($cnpj));
 
         if (!self::hasLength($cnpj, 14)) {
             return false;
@@ -55,7 +55,7 @@ class DocumentHelper
     private static function hasRepeatedDigits(string $value): bool
     {
 //        return preg_match('/(\d)\1+/', $value) === 1;
-        return preg_match('/(\d)\1{13}/', $value);
+        return preg_match('/^(\d)\1{13}$/', $value);
     }
 
     /* ==========================
@@ -119,12 +119,23 @@ class DocumentHelper
         $sum = 0;
 
         for ($i = 0; $i < $length; $i++) {
-            $sum += (int) $cnpj[$i] * $weights[$i];
+            $charValue = self::charToNumber($cnpj[$i]);
+            $sum += $charValue * $weights[$i];
         }
 
         $remainder = $sum % 11;
         $digit = $remainder < 2 ? 0 : 11 - $remainder;
 
         return (int) $cnpj[$length] === $digit;
+    }
+
+    private static function charToNumber(string $char): int
+    {
+        if (is_numeric($char)) {
+            return (int) $char;
+        }
+
+        // “Conversão segue implementação atual do gov.br (ASCII-48), não base36 teórica
+        return ord($char) - 48; // 55 se mudar para base36
     }
 }
