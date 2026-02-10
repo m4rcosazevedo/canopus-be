@@ -24,16 +24,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->api(
             append: [
-                \App\Modules\Tenant\Http\Middleware\ResolveTenant::class,
+
             ]
         );
 
         // Para aplicar em TODAS as requisições (Web e API)
         $middleware->append(AuditTransaction::class);
-        /* Ou, se quiser aplicar apenas em grupos específicos:
-           $middleware->web(append: [AuditTransaction::class]);
-           $middleware->api(append: [AuditTransaction::class]);
-        */
 
     })
     ->withExceptions(function (Exceptions $exceptions): void {

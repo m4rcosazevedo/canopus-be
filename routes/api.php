@@ -7,7 +7,6 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClassRegistrationController;
 use App\Http\Controllers\EnrollmentController;
-use App\Http\Controllers\PaymentCallbackController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserAddressController;
@@ -15,8 +14,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDocumentController;
 use App\Modules\DocumentType\Http\Controllers\DocumentTypeController;
 use App\Modules\State\Http\Controllers\StateController;
-use App\Modules\Tenant\Http\Controllers\TenantController;
-use App\Modules\Tenant\Http\Controllers\TenantPlanController;
 use App\Modules\UserType\Http\Controllers\UserTypeController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,24 +21,11 @@ use Illuminate\Support\Facades\Route;
 //Route::post('/register', [AuthController::class, 'register']);
 Route::post('/signIn', [AuthController::class, 'signIn']);
 
-// Webhook Callback (Public)
-Route::post('/payments/callback', [PaymentCallbackController::class, 'handle']);
-
-Route::group(['prefix' => '/subscription'], function () {
-    Route::get('/plans', [TenantPlanController::class, 'list']);
-//    Route::post('/subscribe', [TenantSubscriptionController::class, 'store']);
-});
-Route::post('/register', [TenantController::class, 'register']);
-
-
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
 //    Route::post('/signOut', [AuthController::class, 'signOut']);
     Route::post('/refreshToken', [AuthController::class, 'refreshToken']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
-
-    Route::apiResource('/tenant', TenantController::class);
-    Route::apiResource('/tenant-plan', TenantPlanController::class);
 
     Route::get('/me', [AuthController::class, 'me']);
 

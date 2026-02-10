@@ -22,16 +22,7 @@ class DatabaseSeeder extends Seeder
             UserTypeSeeder::class,
             DocumentTypeSeeder::class,
             StateSeeder::class,
-            CitySeeder::class,
-            TenantPlanSeeder::class,
+            CitySeeder::class
         ]);
-
-//        User::factory()->create([
-//            'name' => 'Marcos Azevedo',
-//            'email' => 'm4rcos.azevedo@gmail.com',
-//            'user_type_id' => 1,
-//            'password' => bcrypt('senha_segura'),
-//            'cellphone' => '77981378010'
-//        ]);
     }
 }
