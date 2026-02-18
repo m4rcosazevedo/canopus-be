@@ -6,6 +6,7 @@ use App\Models\BaseModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class UserType extends BaseModel
 {
@@ -13,6 +14,10 @@ class UserType extends BaseModel
         'name',
         'description',
         'visible'
+    ];
+
+    protected $casts = [
+        'visible' => 'boolean'
     ];
 
     /** Relationships */
@@ -30,5 +35,11 @@ class UserType extends BaseModel
     public function scopeOrderByDescription(Builder $query): Builder
     {
         return $query->orderBy('description');
+    }
+
+    /** Attributes */
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = Str::slug($value);
     }
 }

@@ -23,7 +23,7 @@ class UserTypeRequest extends FormRequest
                 'string',
                 'max:200',
             ],
-
+            'visible' => ['nullable', 'boolean'],
         ];
     }
 }

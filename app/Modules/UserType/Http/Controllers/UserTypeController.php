@@ -42,13 +42,22 @@ class UserTypeController extends Controller
 
     public function update(UserTypeRequest $request, UserType $userType): UserTypeResource
     {
-        return  new UserTypeResource(
-            $this->repository->update($userType, $request->validated())
+        $data = [
+            'description' => $request->description,
+            'visible' => $request->visible,
+        ];
+
+        return new UserTypeResource(
+            $this->repository->update($userType, $data)
         );
     }
 
     public function destroy(UserType $userType): Response
     {
+        if ($this->isProtectedUserType($userType)) {
+            abort(403, 'Este tipo de usuário não pode ser removido.');
+        }
+
         $this->repository->delete($userType);
 
         return response()->noContent();
@@ -59,5 +68,10 @@ class UserTypeController extends Controller
         return response()->json([
             "data" => $this->repository->options($request)
         ]);
+    }
+
+    private function isProtectedUserType(UserType $userType): bool
+    {
+        return in_array($userType->id, [1, 2], true);
     }
 }
