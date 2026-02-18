@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\City\Models;
 
+use App\Models\Address;
+use App\Models\BaseModel;
 use App\Modules\State\Model\State;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;

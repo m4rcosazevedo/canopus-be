@@ -3,7 +3,6 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CityController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClassRegistrationController;
 use App\Http\Controllers\EnrollmentController;
@@ -12,6 +11,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDocumentController;
+use App\Modules\City\Http\Controllers\CityController;
 use App\Modules\DocumentType\Http\Controllers\DocumentTypeController;
 use App\Modules\State\Http\Controllers\StateController;
 use App\Modules\UserType\Http\Controllers\UserTypeController;

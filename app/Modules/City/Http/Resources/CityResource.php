@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Modules\City\Http\Resources;
 
 use App\Modules\State\Http\Resources\StateResource;
 use Illuminate\Http\Request;

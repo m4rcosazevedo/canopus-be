@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Modules\City\Models\City;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Address extends BaseModel

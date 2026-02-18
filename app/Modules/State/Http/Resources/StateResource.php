@@ -2,7 +2,6 @@
 
 namespace App\Modules\State\Http\Resources;
 
-use App\Http\Resources\CityResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,7 +13,7 @@ class StateResource extends JsonResource
             'id' => $this->resource->id,
             'name' => $this->resource->name,
             'abbr' => $this->resource->abbr,
-            'cities' => CityResource::collection($this->whenLoaded('cities')),
+            'cities' => \App\Modules\City\Http\Resources\CityResource::collection($this->whenLoaded('cities')),
             'ibgeCode' => $this->resource->ibge_code,
             'createdAt' => $this->resource->created_at,
             'updatedAt' => $this->resource->updated_at,

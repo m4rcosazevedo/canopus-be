@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filters;
+namespace App\Modules\City\Filters;
 
 use App\Builders\QueryFilter;
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Modules\City\Repositories;
 
-use App\Models\City;
-use App\Filters\CityFilter;
-use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
+use App\Modules\City\Filters\CityFilter;
+use App\Modules\City\Models\City;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class CityRepository
 {

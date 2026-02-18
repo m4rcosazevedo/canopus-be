@@ -3,8 +3,8 @@
 namespace App\Modules\State\Model;
 
 use App\Models\BaseModel;
-use App\Models\City;
 use App\Models\UserDocument;
+use App\Modules\City\Models\City;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class State extends BaseModel

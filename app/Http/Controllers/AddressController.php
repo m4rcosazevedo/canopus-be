@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Address\AddressRequest;
 use App\Http\Requests\Address\AddressSearchByZipCodeRequest;
 use App\Http\Requests\Address\AddressWithAutoCompleteRequest;
+use App\Http\Resources\AddressResource;
 use App\Models\Address;
-use App\Repositories\CityRepository;
+use App\Modules\City\Repositories\CityRepository;
+use App\Repositories\AddressRepository;
 use App\Services\ZipCodeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use App\Http\Resources\AddressResource;
-use App\Repositories\AddressRepository;
-use App\Http\Requests\Address\AddressRequest;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 
 class AddressController extends Controller

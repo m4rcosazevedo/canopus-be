@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Modules\City\Http\Controllers;
 
-use App\Models\City;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use App\Http\Controllers\Controller;
+use App\Modules\City\Http\Requests\CityRequest;
+use App\Modules\City\Http\Resources\CityResource;
+use App\Modules\City\Models\City;
+use App\Modules\City\Repositories\CityRepository;
 use Illuminate\Http\JsonResponse;
-use App\Http\Resources\CityResource;
-use App\Repositories\CityRepository;
-use App\Http\Requests\City\CityRequest;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class CityController extends Controller
 {

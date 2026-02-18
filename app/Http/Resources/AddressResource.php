@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Modules\City\Http\Resources\CityResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
