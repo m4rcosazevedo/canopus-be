@@ -11,6 +11,12 @@ class CityFilter extends QueryFilter
         return $this->builder->where('name', 'LIKE', "%$name%");
     }
 
+    public function ibgeCode($code)
+    {
+        $code = (int) $code;
+        return $this->builder->where('ibge_code', '=', $code);
+    }
+
     public function stateId($stateId)
     {
         $stateId = (int) $stateId;
