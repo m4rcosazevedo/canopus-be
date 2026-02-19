@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Report;
+namespace App\Modules\Report\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

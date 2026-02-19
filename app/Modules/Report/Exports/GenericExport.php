@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Exports;
+namespace App\Modules\Report\Exports;
 
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Illuminate\Support\Collection;
 
 class GenericExport implements FromCollection, WithHeadings
 {

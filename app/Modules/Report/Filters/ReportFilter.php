@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filters;
+namespace App\Modules\Report\Filters;
 
 use App\Builders\SortableQueryFilter;
 

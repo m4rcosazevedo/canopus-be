@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Services;
+namespace App\Modules\Report\Services;
 
-use App\Jobs\GenerateReportJob;
-use App\Models\Report;
 use App\Models\User;
+use App\Modules\Report\Exports\GenericExport;
+use App\Modules\Report\Jobs\GenerateReportJob;
+use App\Modules\Report\Models\Report;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\GenericExport;
 
 class ReportService
 {

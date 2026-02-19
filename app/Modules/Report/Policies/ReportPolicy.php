@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Policies;
+namespace App\Modules\Report\Policies;
 
-use App\Models\Report;
 use App\Models\User;
+use App\Modules\Report\Models\Report;
 
 class ReportPolicy
 {

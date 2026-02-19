@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Modules\Report\Jobs;
 
-use App\Models\Report;
-use App\Services\ReportService;
+use App\Modules\Report\Models\Report;
+use App\Modules\Report\Services\ReportService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

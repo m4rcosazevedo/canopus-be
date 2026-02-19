@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Modules\Report\Repositories;
 
-use App\Filters\ReportFilter;
-use App\Models\Report;
-use Illuminate\Http\Request;
+use App\Modules\Report\Filters\ReportFilter;
+use App\Modules\Report\Models\Report;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ReportRepository

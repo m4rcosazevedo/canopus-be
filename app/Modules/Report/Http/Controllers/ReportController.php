@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Modules\Report\Http\Controllers;
 
-use App\Http\Requests\Report\StoreReportRequest;
-use App\Http\Resources\ReportResource;
-use App\Models\Report;
-use App\Repositories\ReportRepository;
-use App\Services\ReportService;
+use App\Http\Controllers\Controller;
+use App\Modules\Report\Http\Requests\StoreReportRequest;
+use App\Modules\Report\Http\Resources\ReportResource;
+use App\Modules\Report\Models\Report;
+use App\Modules\Report\Repositories\ReportRepository;
+use App\Modules\Report\Services\ReportService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
