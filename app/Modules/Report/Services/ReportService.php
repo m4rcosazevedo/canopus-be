@@ -6,12 +6,11 @@ use App\Models\User;
 use App\Modules\Report\Exports\GenericExport;
 use App\Modules\Report\Jobs\GenerateReportJob;
 use App\Modules\Report\Models\Report;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Spatie\Browsershot\Browsershot;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
-use Generator;
 
 class ReportService
 {
@@ -160,7 +159,7 @@ class ReportService
                     Storage::disk('local')->append($htmlFile, '<div class="page-break"></div>');
                 }
 
-                $rowsPerTable = 50; // Mantendo 50 para tentar minimizar o uso de memória
+                $rowsPerTable = 50;
                 $rowCount = 0;
 
                 $this->writeTableHeader($htmlFile, $chunkFields);
@@ -196,13 +195,44 @@ class ReportService
 
             $fullHtml = Storage::disk('local')->get($htmlFile);
 
-            // Limpar HTML temporário antes de gerar o PDF
+            // Limpar HTML temporário
             Storage::disk('local')->delete($htmlFile);
 
-            $pdf = Pdf::loadHTML($fullHtml);
-            $pdf->setPaper('a4', $layout['orientation']);
+            // ----------------------------------------------------------------
+            // INÍCIO DA NOVA LÓGICA DO BROWSERSHOT
+            // ----------------------------------------------------------------
+            $absoluteSavePath = Storage::disk('local')->path($filename);
 
-            Storage::disk('local')->put($filename, $pdf->output());
+            $browsershot = Browsershot::html($fullHtml)
+                ->format('A4')
+                ->margins(10, 10, 10, 10)
+                ->showBackground() // Útil se o seu CSS tiver cores de fundo nas tabelas
+                ->setChromePath('/usr/bin/chromium')
+                ->addChromiumArguments([
+                    'no-sandbox',
+                    'disable-setuid-sandbox',
+                    'disable-dev-shm-usage', // Crítico para Docker
+                    'disable-extensions',
+                    'disable-gpu',
+                    'no-zygote',
+                    'single-process',
+                ]);
+
+            // Se o cálculo do layout definiu como landscape, aplicamos no Browsershot
+            if ($layout['orientation'] === 'landscape') {
+                $browsershot->landscape();
+            }
+
+            // Opcional: Se o node/npm não estiverem no PATH padrão do usuário do Docker,
+            // descomente e ajuste as linhas abaixo:
+            // ->setNodeBinary('/usr/bin/node')
+            // ->setNpmBinary('/usr/bin/npm')
+
+            $browsershot->save($absoluteSavePath);
+            // ----------------------------------------------------------------
+            // FIM DA LÓGICA DO BROWSERSHOT
+            // ----------------------------------------------------------------
+
         } catch (\Throwable $e) {
             if (Storage::disk('local')->exists($htmlFile)) {
                 Storage::disk('local')->delete($htmlFile);
