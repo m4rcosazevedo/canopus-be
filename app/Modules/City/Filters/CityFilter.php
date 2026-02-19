@@ -2,10 +2,27 @@
 
 namespace App\Modules\City\Filters;
 
-use App\Builders\QueryFilter;
+use App\Builders\SortableQueryFilter;
 
-class CityFilter extends QueryFilter
+class CityFilter extends SortableQueryFilter
 {
+    protected array $sortable = [
+        'id'        => 'id',
+        'name'      => 'name',
+        'ibgeCode'  => 'ibge_code',
+        'state.name'     => 'state.name',
+    ];
+
+    protected string $sortColumn = 'name';
+
+    protected string $sortOrder  = 'asc';
+
+    public function id($id)
+    {
+        $id = (int) $id;
+        return $this->builder->where('id', '=', $id);
+    }
+
     public function name(string $name)
     {
         return $this->builder->where('name', 'LIKE', "%$name%");

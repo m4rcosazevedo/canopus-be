@@ -61,7 +61,6 @@ class CityRepository
     private function baseQuery(Request $request): Builder
     {
         return City::query()
-            ->filter(new CityFilter($request))
-            ->orderBy('name');
+            ->filter(new CityFilter($request));
     }
 }
