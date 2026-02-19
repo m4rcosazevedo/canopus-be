@@ -2,10 +2,26 @@
 
 namespace App\Modules\State\Filters;
 
-use App\Builders\QueryFilter;
+use App\Builders\SortableQueryFilter;
 
-class StateFilter extends QueryFilter
+class StateFilter extends SortableQueryFilter
 {
+    protected array $sortable = [
+        'id'        => 'id',
+        'name'      => 'name',
+        'abbr'      => 'abbr',
+        'ibgeCode'  => 'ibge_code',
+    ];
+
+    protected string $sortColumn = 'name';
+    protected string $sortOrder  = 'asc';
+
+    public function id($id)
+    {
+        $id = (int) $id;
+        return $this->builder->where('id', '=', $id);
+    }
+
     public function name(string $name)
     {
         return $this->builder->where('name', 'LIKE', '%' . $name . '%');

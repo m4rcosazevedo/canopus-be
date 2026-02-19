@@ -42,7 +42,6 @@ class StateRepository
     private function baseQuery(Request $request): Builder
     {
         return State::query()
-            ->orderBy('abbr')
             ->filter(new StateFilter($request));
     }
 }
