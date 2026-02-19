@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
+use Generator;
 
 class ReportService
 {
@@ -35,71 +36,31 @@ class ReportService
 
     public function generate(Report $report)
     {
-        $data = $this->fetchDataFromEndpoint($report);
-        $processedData = $this->processData($data, $report->parameters['fields']);
-
         $date = Carbon::now()->format('YmdHis');
-
         $filename = 'reports/' . $date . '-' . $report->id . '-' . ($report->name ?? 'report') . '.' . $report->format;
 
-        if ($report->format === 'pdf') {
-            $layout = $this->calculateLayout($report->parameters['fields']);
+        $tempDataFile = 'temp_data_' . $report->id . '.jsonl';
 
-            $queryDisplay = collect($report->parameters['queryDisplay'] ?? [])
-                ->filter(function ($item) {
-                    return isset($item['value']) && trim((string) $item['value']) !== '';
-                })
-                ->values()
-                ->toArray();
+        try {
+            $this->fetchAndStoreData($report, $tempDataFile);
 
+            if ($report->format === 'pdf') {
+                $this->generatePdf($report, $filename, $tempDataFile);
+            } elseif (in_array($report->format, ['csv', 'xlsx'])) {
+                $this->generateExcel($report, $filename, $tempDataFile);
+            }
 
-            $pdf = Pdf::loadView($report->template ?? 'reports.default', [
-                'data' => $processedData,
-                'title' => $report->parameters['title'] ?? 'Relatório',
-                'queryDisplay' => $queryDisplay,
-                'fields' => $report->parameters['fields'],
-                'fieldChunks' => $layout['chunks']
-            ]);
+            $report->path = $filename;
+            $report->save();
 
-            $pdf->setPaper('a4', $layout['orientation']);
-
-            Storage::disk('local')->put($filename, $pdf->output());
-        } elseif (in_array($report->format, ['csv', 'xlsx'])) {
-             Excel::store(new GenericExport($processedData, $report->parameters['fields']), $filename, 'local');
+        } finally {
+            if (Storage::disk('local')->exists($tempDataFile)) {
+                Storage::disk('local')->delete($tempDataFile);
+            }
         }
-
-        $report->path = $filename;
-        $report->save();
     }
 
-    protected function calculateLayout($fields)
-    {
-        $maxPortrait = 7;
-        $maxLandscape = 12;
-
-        $count = count($fields);
-
-        if ($count <= $maxPortrait) {
-            return [
-                'orientation' => 'portrait',
-                'chunks' => [$fields]
-            ];
-        }
-
-        if ($count <= $maxLandscape) {
-            return [
-                'orientation' => 'landscape',
-                'chunks' => [$fields]
-            ];
-        }
-
-        return [
-            'orientation' => 'landscape',
-            'chunks' => array_chunk($fields, $maxLandscape)
-        ];
-    }
-
-    protected function fetchDataFromEndpoint(Report $report)
+    protected function fetchAndStoreData(Report $report, string $tempFile)
     {
         $queryParams = $report->parameters['queryParams'] ?? [];
         $headers = ['Accept' => 'application/json'];
@@ -128,8 +89,9 @@ class ReportService
             $endpoint = rtrim(config('app.url'), '/') . $endpoint;
         }
 
-        $allItems = [];
         $page = 1;
+
+        Storage::disk('local')->put($tempFile, '');
 
         do {
             if ($paginateConfig) {
@@ -150,8 +112,14 @@ class ReportService
                 $items = [$items];
             }
 
-            if (is_array($items)) {
-                $allItems = array_merge($allItems, $items);
+            if (is_array($items) && count($items) > 0) {
+                $processedChunk = $this->processData($items, $report->parameters['fields']);
+
+                $content = '';
+                foreach ($processedChunk as $row) {
+                    $content .= json_encode($row) . "\n";
+                }
+                Storage::disk('local')->append($tempFile, $content);
             }
 
             $shouldContinue = false;
@@ -166,8 +134,136 @@ class ReportService
             }
 
         } while ($shouldContinue);
+    }
 
-        return $allItems;
+    protected function generatePdf(Report $report, string $filename, string $tempDataFile)
+    {
+        $layout = $this->calculateLayout($report->parameters['fields']);
+        $chunks = $layout['chunks'];
+
+        $queryDisplay = collect($report->parameters['queryDisplay'] ?? [])
+            ->filter(fn($item) => isset($item['value']) && trim((string) $item['value']) !== '')
+            ->values()
+            ->toArray();
+
+        $htmlFile = 'temp_html_' . $report->id . '.html';
+
+        try {
+            $html = view('reports.pdf_header', [
+                'title' => $report->parameters['title'] ?? 'Relatório',
+                'queryDisplay' => $queryDisplay,
+            ])->render();
+            Storage::disk('local')->put($htmlFile, $html);
+
+            foreach ($chunks as $index => $chunkFields) {
+                if ($index > 0) {
+                    Storage::disk('local')->append($htmlFile, '<div class="page-break"></div>');
+                }
+
+                $rowsPerTable = 50; // Mantendo 50 para tentar minimizar o uso de memória
+                $rowCount = 0;
+
+                $this->writeTableHeader($htmlFile, $chunkFields);
+
+                $handle = fopen(Storage::disk('local')->path($tempDataFile), 'r');
+                if ($handle) {
+                    while (($line = fgets($handle)) !== false) {
+                        $row = json_decode($line, true);
+                        if ($row) {
+                            if ($rowCount > 0 && $rowCount % $rowsPerTable === 0) {
+                                Storage::disk('local')->append($htmlFile, '</tbody></table>');
+                                Storage::disk('local')->append($htmlFile, '<div class="page-break"></div>');
+                                $this->writeTableHeader($htmlFile, $chunkFields);
+                            }
+
+                            $tr = '<tr>';
+                            foreach ($chunkFields as $field) {
+                                $value = $row[$field['title']] ?? '';
+                                $tr .= '<td>' . htmlspecialchars((string)$value) . '</td>';
+                            }
+                            $tr .= '</tr>';
+                            Storage::disk('local')->append($htmlFile, $tr);
+                            $rowCount++;
+                        }
+                    }
+                    fclose($handle);
+                }
+
+                Storage::disk('local')->append($htmlFile, '</tbody></table>');
+            }
+
+            Storage::disk('local')->append($htmlFile, '</body></html>');
+
+            $fullHtml = Storage::disk('local')->get($htmlFile);
+
+            // Limpar HTML temporário antes de gerar o PDF
+            Storage::disk('local')->delete($htmlFile);
+
+            $pdf = Pdf::loadHTML($fullHtml);
+            $pdf->setPaper('a4', $layout['orientation']);
+
+            Storage::disk('local')->put($filename, $pdf->output());
+        } catch (\Throwable $e) {
+            if (Storage::disk('local')->exists($htmlFile)) {
+                Storage::disk('local')->delete($htmlFile);
+            }
+            throw $e;
+        }
+    }
+
+    protected function writeTableHeader(string $htmlFile, array $fields)
+    {
+        $tableHeader = '<table><thead><tr>';
+        foreach ($fields as $field) {
+            $tableHeader .= '<th>' . $field['title'] . '</th>';
+        }
+        $tableHeader .= '</tr></thead><tbody>';
+        Storage::disk('local')->append($htmlFile, $tableHeader);
+    }
+
+    protected function generateExcel(Report $report, string $filename, string $tempDataFile)
+    {
+        $generator = function() use ($tempDataFile) {
+            $handle = fopen(Storage::disk('local')->path($tempDataFile), 'r');
+            if ($handle) {
+                while (($line = fgets($handle)) !== false) {
+                    $row = json_decode($line, true);
+                    if ($row) {
+                        yield $row;
+                    }
+                }
+                fclose($handle);
+            }
+        };
+
+        Excel::store(new GenericExport($generator(), $report->parameters['fields']), $filename, 'local');
+    }
+
+    protected function calculateLayout($fields)
+    {
+        $maxPortrait = 7;
+        $maxLandscape = 12;
+
+        $count = count($fields);
+
+        if ($count <= $maxPortrait) {
+            return [
+                'orientation' => 'portrait',
+                'chunks' => [$fields]
+            ];
+        }
+
+        if ($count <= $maxLandscape) {
+            return [
+                'orientation' => 'landscape',
+                'chunks' => [$fields]
+            ];
+        }
+
+        return [
+            'orientation' => 'landscape',
+            'chunks' => array_chunk($fields, $maxLandscape)
+        ];
     }
 
     protected function processData($data, $fields)

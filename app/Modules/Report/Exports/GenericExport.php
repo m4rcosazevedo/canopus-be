@@ -2,28 +2,28 @@
 
 namespace App\Modules\Report\Exports;
 
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Iterator;
+use Maatwebsite\Excel\Concerns\FromIterator;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class GenericExport implements FromCollection, WithHeadings
+class GenericExport implements FromIterator, WithHeadings
 {
-    protected $data;
+    protected $iterator;
     protected $fields;
 
-    public function __construct($data, $fields)
+    public function __construct(Iterator $iterator, $fields)
     {
-        $this->data = $data instanceof Collection ? $data : collect($data);
+        $this->iterator = $iterator;
         $this->fields = $fields;
     }
 
-    public function collection()
+    public function iterator(): Iterator
     {
-        return $this->data;
+        return $this->iterator;
     }
 
     public function headings(): array
-    {;
+    {
         return array_map(function($field) {
             return $field['title'];
         }, $this->fields);

@@ -75,4 +75,4 @@ help: ## Lista de commandos
 
 cache-clear: ## Limpar cache do sistema
 	docker exec -it $(CONTAINER) bash -c "cd $(PATH_CONTAINER) \
-    	&& php artisan ec:cache:clear"
+    	&& php artisan cache:clear"

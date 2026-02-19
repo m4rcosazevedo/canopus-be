@@ -10,19 +10,31 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class GenerateReportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $report;
+    /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public int $tries = 1;
+
+    /**
+     * The number of seconds the job can run before timing out.
+     *
+     * @var int
+     */
+    public int $timeout = 600; // 3600;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(Report $report)
+    public function __construct(protected Report $report)
     {
-        $this->report = $report;
     }
 
     /**
@@ -32,14 +44,30 @@ class GenerateReportJob implements ShouldQueue
     {
         try {
             $this->report->update(['status' => 'processing']);
+
             $reportService->generate($this->report);
-            $this->report->update(['status' => 'completed']);
-        } catch (\Exception $e) {
-            Log::error('Report generation failed: ' . $e->getMessage());
-            $this->report->update([
-                'status' => 'failed',
-                'error_message' => $e->getMessage()
-            ]);
+
+            if ($this->report->status !== 'failed') {
+                $this->report->update(['status' => 'completed']);
+            }
+
+        } catch (Throwable $e) {
+            $this->fail($e);
         }
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(Throwable $exception): void
+    {
+        Log::error('Report generation failed for report ID ' . $this->report->id . ': ' . $exception->getMessage(), [
+            'exception' => $exception
+        ]);
+
+        $this->report->update([
+            'status' => 'failed',
+            'error_message' => $exception->getMessage(),
+        ]);
     }
 }
