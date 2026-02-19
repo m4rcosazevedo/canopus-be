@@ -29,7 +29,9 @@ class ReportController extends Controller
     {
         $this->authorize('viewAny', Report::class);
 
-        return ReportResource::collection($this->repository->paginate($request));
+        return ReportResource::collection(
+            $this->repository->paginate($request)
+        );
     }
 
     public function store(StoreReportRequest $request): ReportResource

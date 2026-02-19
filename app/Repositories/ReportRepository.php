@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Filters\ReportFilter;
 use App\Models\Report;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,8 +25,8 @@ class ReportRepository
     private function baseQuery(Request $request): Builder
     {
         return Report::with(self::RELATIONS)
+                ->filter(new ReportFilter($request))
                 ->where('user_id', $request->user()->id)
                 ->latest();
-//            ->filter();
     }
 }

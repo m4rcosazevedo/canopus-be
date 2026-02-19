@@ -13,7 +13,7 @@ class ReportResource extends JsonResource
             'id' => $this->resource->id,
             'user' => new UserResource($this->whenLoaded('user')),
             'name' => $this->resource->name,
-            'title' => $this->resource->title,
+            'title' => $this->resource->parameters['title'] ?? '',
             'path' => basename($this->resource->path),
             'status' => $this->resource->status,
             'format' => $this->resource->format,
