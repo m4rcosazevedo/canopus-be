@@ -15,4 +15,10 @@ class StateFilter extends QueryFilter
     {
         return $this->builder->where('abbr', '=', $abbr);
     }
+
+    public function ibgeCode($code)
+    {
+        $abbr = (int) $code;
+        return $this->builder->where('ibge_code', '=', $code);
+    }
 }
