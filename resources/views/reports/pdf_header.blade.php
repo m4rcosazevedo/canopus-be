@@ -5,12 +5,18 @@
     <title>{{ $title }}</title>
     <style>
         body { font-family: sans-serif; font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: auto; word-wrap: break-word; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
+
+        /* Regras para impressão/PDF */
+        thead { display: table-header-group; background-color: #f2f2f2; }
+        tbody { display: table-row-group; }
+        tr { page-break-inside: avoid; }
+
         .header { margin-bottom: 20px; }
         .meta { margin-bottom: 10px; font-size: 11px; color: #555; }
-        .page-break { page-break-before: always; }
+
         h2 { margin-bottom: 8px; font-size: 11px; }
         .content { background: #f2f2f2; padding: 8px; border: 1px solid #ddd; }
     </style>

@@ -137,8 +137,8 @@ class ReportService
 
     protected function generatePdf(Report $report, string $filename, string $tempDataFile)
     {
-        $layout = $this->calculateLayout($report->parameters['fields']);
-        $chunks = $layout['chunks'];
+        $fields = $report->parameters['fields'];
+        $layout = $this->calculateLayout($fields);
 
         $queryDisplay = collect($report->parameters['queryDisplay'] ?? [])
             ->filter(fn($item) => isset($item['value']) && trim((string) $item['value']) !== '')
@@ -154,84 +154,56 @@ class ReportService
             ])->render();
             Storage::disk('local')->put($htmlFile, $html);
 
-            foreach ($chunks as $index => $chunkFields) {
-                if ($index > 0) {
-                    Storage::disk('local')->append($htmlFile, '<div class="page-break"></div>');
-                }
+            $this->writeTableHeader($htmlFile, $fields);
 
-                $rowsPerTable = 50;
-                $rowCount = 0;
-
-                $this->writeTableHeader($htmlFile, $chunkFields);
-
-                $handle = fopen(Storage::disk('local')->path($tempDataFile), 'r');
-                if ($handle) {
-                    while (($line = fgets($handle)) !== false) {
-                        $row = json_decode($line, true);
-                        if ($row) {
-                            if ($rowCount > 0 && $rowCount % $rowsPerTable === 0) {
-                                Storage::disk('local')->append($htmlFile, '</tbody></table>');
-                                Storage::disk('local')->append($htmlFile, '<div class="page-break"></div>');
-                                $this->writeTableHeader($htmlFile, $chunkFields);
-                            }
-
-                            $tr = '<tr>';
-                            foreach ($chunkFields as $field) {
-                                $value = $row[$field['title']] ?? '';
-                                $tr .= '<td>' . htmlspecialchars((string)$value) . '</td>';
-                            }
-                            $tr .= '</tr>';
-                            Storage::disk('local')->append($htmlFile, $tr);
-                            $rowCount++;
+            $handle = fopen(Storage::disk('local')->path($tempDataFile), 'r');
+            if ($handle) {
+                while (($line = fgets($handle)) !== false) {
+                    $row = json_decode($line, true);
+                    if ($row) {
+                        $tr = '<tr>';
+                        foreach ($fields as $field) {
+                            $value = $row[$field['title']] ?? '';
+                            $tr .= '<td>' . htmlspecialchars((string)$value) . '</td>';
                         }
+                        $tr .= '</tr>';
+                        Storage::disk('local')->append($htmlFile, $tr);
                     }
-                    fclose($handle);
                 }
-
-                Storage::disk('local')->append($htmlFile, '</tbody></table>');
+                fclose($handle);
             }
 
-            Storage::disk('local')->append($htmlFile, '</body></html>');
+            Storage::disk('local')->append($htmlFile, '</tbody></table></body></html>');
 
             $fullHtml = Storage::disk('local')->get($htmlFile);
 
-            // Limpar HTML temporário
             Storage::disk('local')->delete($htmlFile);
 
             // ----------------------------------------------------------------
-            // INÍCIO DA NOVA LÓGICA DO BROWSERSHOT
+            // BROWSERSHOT
             // ----------------------------------------------------------------
             $absoluteSavePath = Storage::disk('local')->path($filename);
 
             $browsershot = Browsershot::html($fullHtml)
                 ->format('A4')
                 ->margins(10, 10, 10, 10)
-                ->showBackground() // Útil se o seu CSS tiver cores de fundo nas tabelas
+                ->showBackground()
                 ->setChromePath('/usr/bin/chromium')
                 ->addChromiumArguments([
                     'no-sandbox',
                     'disable-setuid-sandbox',
-                    'disable-dev-shm-usage', // Crítico para Docker
+                    'disable-dev-shm-usage',
                     'disable-extensions',
                     'disable-gpu',
                     'no-zygote',
                     'single-process',
                 ]);
 
-            // Se o cálculo do layout definiu como landscape, aplicamos no Browsershot
             if ($layout['orientation'] === 'landscape') {
                 $browsershot->landscape();
             }
 
-            // Opcional: Se o node/npm não estiverem no PATH padrão do usuário do Docker,
-            // descomente e ajuste as linhas abaixo:
-            // ->setNodeBinary('/usr/bin/node')
-            // ->setNpmBinary('/usr/bin/npm')
-
             $browsershot->save($absoluteSavePath);
-            // ----------------------------------------------------------------
-            // FIM DA LÓGICA DO BROWSERSHOT
-            // ----------------------------------------------------------------
 
         } catch (\Throwable $e) {
             if (Storage::disk('local')->exists($htmlFile)) {
@@ -243,9 +215,9 @@ class ReportService
 
     protected function writeTableHeader(string $htmlFile, array $fields)
     {
-        $tableHeader = '<table><thead><tr>';
+        $tableHeader = '<table class="table-report"><thead><tr>';
         foreach ($fields as $field) {
-            $tableHeader .= '<th>' . $field['title'] . '</th>';
+            $tableHeader .= '<th>' . htmlspecialchars($field['title']) . '</th>';
         }
         $tableHeader .= '</tr></thead><tbody>';
         Storage::disk('local')->append($htmlFile, $tableHeader);
@@ -271,28 +243,11 @@ class ReportService
 
     protected function calculateLayout($fields)
     {
+        // Se houver mais de 7 colunas, sugerimos paisagem para caber melhor
         $maxPortrait = 7;
-        $maxLandscape = 12;
-
-        $count = count($fields);
-
-        if ($count <= $maxPortrait) {
-            return [
-                'orientation' => 'portrait',
-                'chunks' => [$fields]
-            ];
-        }
-
-        if ($count <= $maxLandscape) {
-            return [
-                'orientation' => 'landscape',
-                'chunks' => [$fields]
-            ];
-        }
 
         return [
-            'orientation' => 'landscape',
-            'chunks' => array_chunk($fields, $maxLandscape)
+            'orientation' => count($fields) <= $maxPortrait ? 'portrait' : 'landscape',
         ];
     }
 
