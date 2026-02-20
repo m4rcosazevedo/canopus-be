@@ -3,6 +3,7 @@
 namespace App\Modules\Report\DataSources;
 
 use App\Modules\Report\Contracts\DataSourceInterface;
+use App\Modules\Report\Contracts\ReportStorageInterface;
 use App\Modules\Report\Models\Report;
 use App\Modules\Report\Processors\DataProcessor;
 use Illuminate\Support\Facades\Http;
@@ -12,7 +13,8 @@ use Exception;
 class ApiDataSource implements DataSourceInterface
 {
     public function __construct(
-        protected DataProcessor $processor
+        protected DataProcessor $processor,
+        protected ReportStorageInterface $storage
     ) {}
 
     public function fetchAndStore(Report $report, string $tempFile): void
@@ -46,7 +48,7 @@ class ApiDataSource implements DataSourceInterface
 
         $page = 1;
 
-        Storage::disk('local')->put($tempFile, '');
+        $this->storage->putTemp($tempFile, '');
 
         do {
             if ($paginateConfig) {
@@ -68,14 +70,13 @@ class ApiDataSource implements DataSourceInterface
             }
 
             if (is_array($items) && count($items) > 0) {
-                // Utiliza o processor injetado para formatar os dados
                 $processedChunk = $this->processor->process($items, $report->parameters['fields']);
 
                 $content = '';
                 foreach ($processedChunk as $row) {
                     $content .= json_encode($row) . "\n";
                 }
-                Storage::disk('local')->append($tempFile, $content);
+                $this->storage->appendTemp($tempFile, $content);
             }
 
             $shouldContinue = false;

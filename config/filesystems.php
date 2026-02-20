@@ -28,6 +28,10 @@ return [
     |
     */
 
+    'reports' => [
+        'disk' => env('REPORT_DISK', 'local'),
+    ],
+
     'disks' => [
 
         'local' => [

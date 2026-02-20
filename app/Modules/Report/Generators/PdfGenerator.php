@@ -3,6 +3,7 @@
 namespace App\Modules\Report\Generators;
 
 use App\Modules\Report\Contracts\ReportGeneratorInterface;
+use App\Modules\Report\Contracts\ReportStorageInterface;
 use App\Modules\Report\Models\Report;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
@@ -10,7 +11,11 @@ use Throwable;
 
 class PdfGenerator implements ReportGeneratorInterface
 {
-    public function generate(Report $report, string $filename, string $tempDataFile): void
+    public function __construct(
+        protected ReportStorageInterface $storage
+    ) {}
+
+    public function generate(Report $report, string $tempDataFile): string
     {
         $fields = $report->parameters['fields'];
         $layout = $this->calculateLayout($fields);
@@ -21,6 +26,7 @@ class PdfGenerator implements ReportGeneratorInterface
             ->toArray();
 
         $htmlFile = 'temp_html_' . $report->id . '.html';
+        $outputPdfFile = 'generated_pdf_' . $report->id . '.pdf';
 
         try {
             $html = view('reports.pdf_header', [
@@ -28,10 +34,10 @@ class PdfGenerator implements ReportGeneratorInterface
                 'queryDisplay' => $queryDisplay,
             ])->render();
 
-            Storage::disk('local')->put($htmlFile, $html);
+            $this->storage->putTemp($htmlFile, $html);
             $this->writeTableHeader($htmlFile, $fields);
 
-            $handle = fopen(Storage::disk('local')->path($tempDataFile), 'r');
+            $handle = $this->storage->getTempStream($tempDataFile);
             if ($handle) {
                 while (($line = fgets($handle)) !== false) {
                     $row = json_decode($line, true);
@@ -42,18 +48,18 @@ class PdfGenerator implements ReportGeneratorInterface
                             $tr .= '<td>' . htmlspecialchars((string)$value) . '</td>';
                         }
                         $tr .= '</tr>';
-                        Storage::disk('local')->append($htmlFile, $tr);
+                        $this->storage->appendTemp($htmlFile, $tr);
                     }
                 }
                 fclose($handle);
             }
 
-            Storage::disk('local')->append($htmlFile, '</tbody></table></body></html>');
+            $this->storage->appendTemp($htmlFile, '</tbody></table></body></html>');
 
-            $fullHtml = Storage::disk('local')->get($htmlFile);
-            Storage::disk('local')->delete($htmlFile);
+            $fullHtml = $this->storage->getTempContent($htmlFile);
+            $this->storage->deleteTemp($htmlFile);
 
-            $absoluteSavePath = Storage::disk('local')->path($filename);
+            $absoluteSavePath = $this->storage->getTempPath($outputPdfFile);
 
             $browsershot = Browsershot::html($fullHtml)
                 ->format('A4')
@@ -76,9 +82,11 @@ class PdfGenerator implements ReportGeneratorInterface
 
             $browsershot->save($absoluteSavePath);
 
+            return $outputPdfFile;
+
         } catch (Throwable $e) {
-            if (Storage::disk('local')->exists($htmlFile)) {
-                Storage::disk('local')->delete($htmlFile);
+            if ($this->storage->existsTemp($htmlFile)) {
+                $this->storage->deleteTemp([$htmlFile, $outputPdfFile]);
             }
             throw $e;
         }
@@ -91,7 +99,8 @@ class PdfGenerator implements ReportGeneratorInterface
             $tableHeader .= '<th>' . htmlspecialchars($field['title']) . '</th>';
         }
         $tableHeader .= '</tr></thead><tbody>';
-        Storage::disk('local')->append($htmlFile, $tableHeader);
+
+        $this->storage->appendTemp($htmlFile, $tableHeader);
     }
 
     protected function calculateLayout(array $fields): array
