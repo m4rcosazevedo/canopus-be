@@ -23,7 +23,7 @@ class AuditLogResource extends JsonResource
             ],
             'action' => [
                 'event'      => $this->resource->event,
-                'model'      => str_replace('App\\Models\\', '', $this->resource->auditable_type),
+                'model'      => $this->getModel($this->resource->auditable_type),
                 'modelId'   => $this->resource->auditable_id,
             ],
             'changes' => $this->resource->when($this->resource->event === 'updated', function () {
@@ -40,5 +40,17 @@ class AuditLogResource extends JsonResource
                 'createdAt' => $this->resource->created_at,
             ],
         ];
+    }
+
+    private function getModel(string $str): string
+    {
+        if ($str === '') {
+            return '';
+        }
+
+        $parts = explode('\\', $str);
+        $last = end($parts);
+
+        return $last !== false ? $last : '';
     }
 }

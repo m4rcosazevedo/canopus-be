@@ -2,11 +2,11 @@
 
 namespace App\Modules\Report\Models;
 
-use App\Models\BaseModel;
+use App\Models\BaseNoAuditableModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Report extends BaseModel
+class Report extends BaseNoAuditableModel
 {
     use HasFactory;
 

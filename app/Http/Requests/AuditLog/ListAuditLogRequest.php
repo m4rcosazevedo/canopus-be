@@ -16,10 +16,10 @@ class ListAuditLogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email'   => 'email',
-            'event'   => 'in:created,updated,deleted',
-            'model'   => 'string',
-            'modelId' => 'integer',
+            'email'   => 'nullable|email',
+            'event'   => 'nullable|in:created,updated,deleted',
+            'model'   => 'nullable|string',
+            'modelId' => 'nullable|integer',
             'startAt' => [
                 'required_with:endAt',
                 'date_format:Y-m-d',
