@@ -3,6 +3,8 @@
 namespace App\Modules\DocumentType\Models;
 
 use App\Models\BaseModel;
+use App\Models\UserDocument;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DocumentType extends BaseModel
 {
@@ -14,4 +16,10 @@ class DocumentType extends BaseModel
         'name',
         'description'
     ];
+
+    /** Relationships */
+    public function userDocuments(): HasMany
+    {
+        return $this->hasMany(UserDocument::class, 'document_type_id');
+    }
 }

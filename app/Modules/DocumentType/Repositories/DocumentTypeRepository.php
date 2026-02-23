@@ -2,6 +2,7 @@
 
 namespace App\Modules\DocumentType\Repositories;
 
+use App\Modules\DocumentType\Filters\DocumentTypeFilter;
 use App\Modules\DocumentType\Models\DocumentType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ class DocumentTypeRepository
     public function options(Request $request): Collection
     {
         $options = $this->baseQuery($request)
+            ->filter(new DocumentTypeFilter($request))
             ->orderBy('name')
             ->get();
 
