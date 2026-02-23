@@ -9,30 +9,39 @@ class UserRepository
 {
     public function paginate()
     {
-        return User::with(User::DEFAULT_RELATIONS)
+        return User::with($this->defaultRelations())
             ->filter(new UserFilter(request()))
             ->paginate();
     }
 
     public function findById(string|int $id): User
     {
-        return User::with(User::DEFAULT_RELATIONS)->findOrFail($id);
+        return User::with($this->defaultRelations())->findOrFail($id);
     }
 
     public function create(array $data): User
     {
-        $user = User::create($data);
-        return $user->load(User::DEFAULT_RELATIONS);
+        return User::create($data);
     }
 
     public function update(User $user, array $data): User
     {
         $user->update($data);
-        return $user->fresh()->load(User::DEFAULT_RELATIONS);
+        return $this->withRelations($user->fresh());
     }
 
     public function delete(User $user): bool
     {
         return $user->delete();
+    }
+
+    public function withRelations(User $user): User
+    {
+        return $user->load($this->defaultRelations());
+    }
+
+    private function defaultRelations(): array
+    {
+        return User::DEFAULT_RELATIONS;
     }
 }

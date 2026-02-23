@@ -5,11 +5,13 @@ namespace App\Services;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class UserService
 {
     public function __construct(
-        protected UserRepository $repository
+        protected UserRepository $repository,
+        protected UserDocumentService $documentService
     ) {}
 
     public function list(): LengthAwarePaginator
@@ -24,8 +26,19 @@ class UserService
 
     public function create(array $data): User
     {
-        $data['password'] =  $data['password'] ?? str()->random(16);
-        return $this->repository->create($data);
+        return DB::transaction(function () use ($data) {
+
+            $user = $this->repository->create(
+                $this->formatUserData($data)
+            );
+
+            $this->documentService->create(
+                $user,
+                $this->formatDocumentData($data)
+            );
+
+            return $this->repository->withRelations($user);
+        });
     }
 
     public function update(string|int $id, array $data): User
@@ -47,5 +60,27 @@ class UserService
 
         $user = $this->repository->findById($id);
         return $this->repository->delete($user);
+    }
+
+    private function formatUserData(array $data): array
+    {
+        return [
+            'name'         => $data['name'],
+            'email'        => $data['email'],
+            'cellphone'    => $data['cellphone'],
+            'user_type_id' => $data['user_type_id'],
+            'password'     => $data['password'] ?? str()->random(16),
+        ];
+    }
+
+    private function formatDocumentData(array $data): array
+    {
+        return [
+            'document_type_id' => $data['document_type_id'],
+            'number'           => $data['number'],
+            'issuer'           => $data['issuer'] ?? null,
+            'state_id'         => $data['state_id'] ?? null,
+            'issued_at'        => $data['issued_at'] ?? null,
+        ];
     }
 }
