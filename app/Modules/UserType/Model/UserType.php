@@ -4,8 +4,10 @@ namespace App\Modules\UserType\Model;
 
 use App\Models\BaseModel;
 use App\Models\User;
+use App\Modules\Permission\Models\Permission;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
 class UserType extends BaseModel
@@ -24,6 +26,11 @@ class UserType extends BaseModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class, 'permission_user_type');
     }
 
     /** Scopes */

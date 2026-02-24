@@ -2,10 +2,6 @@
 
 namespace App\Providers;
 
-use App\Modules\Report\Contracts\DataSourceInterface;
-use App\Modules\Report\Contracts\ReportStorageInterface;
-use App\Modules\Report\DataSources\ApiDataSource;
-use App\Modules\Report\Services\ReportStorageManager;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -16,13 +12,13 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(
-            DataSourceInterface::class,
-            ApiDataSource::class
+            \App\Modules\Report\Contracts\DataSourceInterface::class,
+            \App\Modules\Report\DataSources\ApiDataSource::class
         );
 
         $this->app->bind(
-            ReportStorageInterface::class,
-            ReportStorageManager::class
+            \App\Modules\Report\Contracts\ReportStorageInterface::class,
+            \App\Modules\Report\Services\ReportStorageManager::class
         );
     }
 
@@ -31,6 +27,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \App\Modules\UserType\Model\UserType::observe(\App\Modules\UserType\Observers\UserTypeObserver::class);
     }
 }

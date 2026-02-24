@@ -18,28 +18,69 @@ use App\Modules\UserType\Http\Controllers\UserTypeController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
-//Route::post('/register', [AuthController::class, 'register']);
 Route::post('/signIn', [AuthController::class, 'signIn']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
-//    Route::post('/signOut', [AuthController::class, 'signOut']);
     Route::post('/refreshToken', [AuthController::class, 'refreshToken']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
-
     Route::get('/me', [AuthController::class, 'me']);
 
-    Route::group(['prefix' => '/user'], function () {
-        Route::apiResource('/{user}/document', UserDocumentController::class);
-        Route::apiResource('/{user}/address', UserAddressController::class);
+    // --- User Management ---
+    Route::middleware('permission:user')->group(function () {
+        Route::apiResource('/user', UserController::class);
+        Route::apiResource('/user/{user}/document', UserDocumentController::class);
+        Route::apiResource('/user/{user}/address', UserAddressController::class);
     });
-    Route::apiResource('/user', UserController::class);
 
-    /** User Type */
-    Route::group(['prefix' => '/user-type'], function () {
-        Route::get('/options', [UserTypeController::class, 'options']);
+    // --- User Type Management ---
+    Route::get('/user-type/options', [UserTypeController::class, 'options'])->middleware('permission:user-type.options');
+    Route::middleware('permission:user-type')->group(function () {
+        Route::apiResource('/user-type', UserTypeController::class);
     });
-    Route::apiResource('user-type', UserTypeController::class);
+
+    // --- AuditLog Management ---
+    Route::middleware('permission:audit-log')->group(function () {
+        Route::get('/audit-log', [AuditLogController::class, 'index']);
+        Route::get('/audit-log/{auditLog}', [AuditLogController::class, 'show']);
+        Route::get('/audit-log/transaction/{transactionId}', [AuditLogController::class, 'showTransaction']);
+    });
+
+    // --- State Management ---
+    Route::get('/state/options', [StateController::class, 'options'])->middleware('permission:state.options');
+    Route::middleware('permission:state')->group(function () {
+        Route::apiResource('/state', StateController::class);
+    });
+
+    // --- City Management ---
+    Route::get('/city/options', [CityController::class, 'options'])->middleware('permission:city.options');
+    Route::middleware('permission:city')->group(function () {
+        Route::apiResource('/city', CityController::class);
+    });
+
+    // --- Address Management ---
+    Route::middleware('permission:address')->group(function () {
+        Route::apiResource('/address', AddressController::class);
+        Route::get('/address/byZipCode', [AddressController::class, 'searchByZipCode']);
+        Route::post('/address/byZipCode', [AddressController::class, 'storeByZipCode']);
+        Route::get('/address/streetTypes', [AddressController::class, 'streetTypes']);
+    });
+
+    // --- Document Type Management ---
+    Route::get('/document-type/options', [DocumentTypeController::class, 'options'])->middleware('permission:document-type.options');
+    Route::middleware('permission:document-type')->group(function () {
+        Route::apiResource('/document-type', DocumentTypeController::class);
+    });
+
+    // --- Report Type Management ---
+    Route::middleware('permission:report')->group(function () {
+        Route::post('/report', [ReportController::class, 'store']);
+        Route::get('/report', [ReportController::class, 'index']);
+        Route::get('/report/{report}', [ReportController::class, 'show']);
+        Route::get('/report/{report}/download', [ReportController::class, 'download']);
+    });
+
+
 
     /** Plans */
     Route::group(['prefix' => '/plan'], function () {
@@ -58,45 +99,4 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /** Enroll */
     Route::post('/enroll', [EnrollmentController::class, 'enroll']);
-
-    /** AuditLog */
-    Route::group(['prefix' => '/audit-log'], function () {
-        Route::get('/', [AuditLogController::class, 'index']);
-        Route::get('/{auditLog}', [AuditLogController::class, 'show']);
-        Route::get('/transaction/{transactionId}', [AuditLogController::class, 'showTransaction']);
-    });
-
-    /** State */
-    Route::group(['prefix' => '/state'], function () {
-        Route::get('/options', [StateController::class, 'options']);
-    });
-    Route::apiResource('/state', StateController::class);
-
-    /** City */
-    Route::group(['prefix' => '/city'], function () {
-        Route::get('/options', [CityController::class, 'options']);
-    });
-    Route::apiResource('/city', CityController::class);
-
-    /** Address */
-    Route::group(['prefix' => '/address'], function () {
-        Route::get('/byZipCode', [AddressController::class, 'searchByZipCode']);
-        Route::post('/byZipCode', [AddressController::class, 'storeByZipCode']);
-        Route::get('/streetTypes', [AddressController::class, 'streetTypes']);
-    });
-    Route::apiResource('address', AddressController::class);
-
-    /** Document Type */
-    Route::group(['prefix' => '/document-type'], function () {
-        Route::get('/options', [DocumentTypeController::class, 'options']);
-    });
-    Route::apiResource('document-type', DocumentTypeController::class);
-
-    /** Reports */
-    Route::group(['prefix' => '/report'], function () {
-        Route::post('/', [ReportController::class, 'store']);
-        Route::get('/', [ReportController::class, 'index']);
-        Route::get('/{report}', [ReportController::class, 'show']);
-        Route::get('/{report}/download', [ReportController::class, 'download']);
-    });
 });

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -73,5 +74,32 @@ class User extends Authenticatable
     public function setNameAttribute($value)
     {
         $this->attributes['name'] = remove_extra_spaces($value);
+    }
+
+    /** Methods */
+    public function hasAllPermissions(array $permissions): bool
+    {
+        if (empty($permissions)) {
+            return false;
+        }
+
+        $userPermissions = $this->getCachedPermissions();
+
+        return count(array_intersect($permissions, $userPermissions)) === count($permissions);
+    }
+
+    protected function getCachedPermissions(): array
+    {
+        static $permissions;
+
+        if ($permissions) {
+            return $permissions;
+        }
+
+        return $permissions = Cache::remember("permissions_role_{$this->user_type_id}", 3600, function () {
+            return $this->userType
+                ? $this->userType->permissions()->pluck('name')->toArray()
+                : [];
+        });
     }
 }
