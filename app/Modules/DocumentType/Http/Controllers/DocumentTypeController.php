@@ -35,14 +35,14 @@ class DocumentTypeController extends Controller
 
     public function store(DocumentTypeRequest $request): DocumentTypeResource
     {
-        return  new DocumentTypeResource(
+        return new DocumentTypeResource(
             $this->repository->create($request->validated())
         );
     }
 
     public function update(DocumentTypeRequest $request, DocumentType $documentType): DocumentTypeResource
     {
-        return  new DocumentTypeResource(
+        return new DocumentTypeResource(
             $this->repository->update($documentType, $request->validated())
         );
     }

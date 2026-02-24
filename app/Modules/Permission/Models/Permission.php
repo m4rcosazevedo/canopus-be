@@ -2,13 +2,13 @@
 
 namespace App\Modules\Permission\Models;
 
+use App\Models\BaseModel;
 use App\Modules\UserType\Model\UserType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
-class Permission extends Model
+class Permission extends BaseModel
 {
     use HasFactory;
 

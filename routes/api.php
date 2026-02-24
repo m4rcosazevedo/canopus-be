@@ -12,6 +12,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDocumentController;
 use App\Modules\City\Http\Controllers\CityController;
 use App\Modules\DocumentType\Http\Controllers\DocumentTypeController;
+use App\Modules\Permission\Http\Controllers\PermissionController;
 use App\Modules\Report\Http\Controllers\ReportController;
 use App\Modules\State\Http\Controllers\StateController;
 use App\Modules\UserType\Http\Controllers\UserTypeController;
@@ -80,6 +81,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/report/{report}/download', [ReportController::class, 'download']);
     });
 
+    // --- Permissions Management ---
+    Route::middleware('permission:permission')->group(function () {
+        Route::apiResource('/permission', PermissionController::class);
+    });
 
 
     /** Plans */
