@@ -3,13 +3,15 @@
 namespace App\Modules\UserType\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\UserType\Enums\UserTypeIdEnum;
+use App\Modules\UserType\Filters\UserTypeFilter;
 use App\Modules\UserType\Http\Requests\SyncPermissionsRequest;
+use App\Modules\UserType\Http\Requests\UserTypeFilterRequest;
 use App\Modules\UserType\Http\Requests\UserTypeRequest;
 use App\Modules\UserType\Http\Resources\UserTypeResource;
 use App\Modules\UserType\Model\UserType;
 use App\Modules\UserType\Repositories\UserTypeRepository;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
@@ -20,10 +22,10 @@ class UserTypeController extends Controller
     )
     {}
 
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(UserTypeFilterRequest $request): AnonymousResourceCollection
     {
         return UserTypeResource::collection(
-            $this->repository->paginate($request)
+            $this->repository->paginate(new UserTypeFilter($request))
         );
     }
 
@@ -64,11 +66,18 @@ class UserTypeController extends Controller
         return response()->noContent();
     }
 
-    public function options(Request $request): JsonResponse
+    public function options(): JsonResponse
     {
         return response()->json([
-            "data" => $this->repository->options($request)
+            "data" => $this->repository->options()
         ]);
+    }
+
+    public function showPermissions(UserType $userType): UserTypeResource
+    {
+        return new UserTypeResource(
+            $this->repository->showPermissions($userType)
+        );
     }
 
     public function syncPermissions(SyncPermissionsRequest $request, UserType $userType): Response
@@ -80,6 +89,6 @@ class UserTypeController extends Controller
 
     private function isProtectedUserType(UserType $userType): bool
     {
-        return in_array($userType->id, [1, 2], true);
+        return in_array($userType->id, [UserTypeIdEnum::ROOT->value, UserTypeIdEnum::ADMINISTRATOR->value], true);
     }
 }

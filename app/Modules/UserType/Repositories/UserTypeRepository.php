@@ -2,22 +2,24 @@
 
 namespace App\Modules\UserType\Repositories;
 
+use App\Builders\QueryFilter;
 use App\Modules\UserType\Model\UserType;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 class UserTypeRepository
 {
-    public function paginate(Request $request): LengthAwarePaginator
+    public function paginate(QueryFilter $filters): LengthAwarePaginator
     {
-        return $this->baseQuery($request)->paginate();
+        return $this->baseQuery()
+            ->filter($filters)
+            ->paginate();
     }
 
-    public function options(Request $request): Collection
+    public function options(): Collection
     {
-        $options = $this->baseQuery($request)
+        $options = $this->baseQuery()
             ->orderByDescription()
             ->visible()
             ->get();
@@ -55,9 +57,13 @@ class UserTypeRepository
         $userType->permissions()->sync($permissions);
     }
 
-    private function baseQuery(Request $request): Builder
+    public function showPermissions(UserType $userType): UserType
+    {
+        return $userType->load(['permissions']);
+    }
+
+    private function baseQuery(): Builder
     {
         return UserType::query();
-//            ->filter();
     }
 }

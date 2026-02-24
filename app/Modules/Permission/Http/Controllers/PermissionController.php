@@ -7,10 +7,12 @@ use App\Modules\Permission\Http\Requests\StorePermissionRequest;
 use App\Modules\Permission\Http\Requests\UpdatePermissionRequest;
 use App\Modules\Permission\Http\Resources\PermissionResource;
 use App\Modules\Permission\Repositories\PermissionRepository;
+use App\Modules\UserType\Enums\UserTypeIdEnum;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class PermissionController extends Controller
 {
@@ -51,6 +53,11 @@ class PermissionController extends Controller
 
     public function destroy(int $id): Response
     {
+        $userTypeId = auth()->user()->user_type_id;
+        $canDelete = $userTypeId === UserTypeIdEnum::ROOT->value;
+        Log::error('$userTypeId', $userTypeId, $canDelete);
+        dd($userTypeId);
+
         $this->repository->delete($id);
 
         return response()->noContent();

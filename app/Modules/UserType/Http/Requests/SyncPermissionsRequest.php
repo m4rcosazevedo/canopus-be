@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class SyncPermissionsRequest extends FormRequest
 {
+    public mixed $permissions;
+
     public function authorize(): bool
     {
         return true;

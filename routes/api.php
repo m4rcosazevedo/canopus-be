@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user-type/options', [UserTypeController::class, 'options'])->middleware('permission:user-type.options');
     Route::middleware('permission:user-type')->group(function () {
         Route::apiResource('/user-type', UserTypeController::class);
+        Route::get('/user-type/{userType}/permissions', [UserTypeController::class, 'showPermissions']);
         Route::post('/user-type/{userType}/permissions', [UserTypeController::class, 'syncPermissions']);
     });
 
@@ -62,10 +63,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- Address Management ---
     Route::middleware('permission:address')->group(function () {
-        Route::apiResource('/address', AddressController::class);
         Route::get('/address/byZipCode', [AddressController::class, 'searchByZipCode']);
         Route::post('/address/byZipCode', [AddressController::class, 'storeByZipCode']);
-        Route::get('/address/streetTypes', [AddressController::class, 'streetTypes']);
+        Route::get('/address/street-types', [AddressController::class, 'streetTypes']);
+        Route::apiResource('/address', AddressController::class);
     });
 
     // --- Document Type Management ---
