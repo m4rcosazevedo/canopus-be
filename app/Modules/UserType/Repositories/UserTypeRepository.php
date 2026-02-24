@@ -50,6 +50,11 @@ class UserTypeRepository
         return (bool) $userType->delete();
     }
 
+    public function syncPermissions(UserType $userType, array $permissions): void
+    {
+        $userType->permissions()->sync($permissions);
+    }
+
     private function baseQuery(Request $request): Builder
     {
         return UserType::query();

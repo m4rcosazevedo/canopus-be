@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user-type/options', [UserTypeController::class, 'options'])->middleware('permission:user-type.options');
     Route::middleware('permission:user-type')->group(function () {
         Route::apiResource('/user-type', UserTypeController::class);
+        Route::post('/user-type/{userType}/permissions', [UserTypeController::class, 'syncPermissions']);
     });
 
     // --- AuditLog Management ---

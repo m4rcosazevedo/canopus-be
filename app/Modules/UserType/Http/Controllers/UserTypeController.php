@@ -3,6 +3,7 @@
 namespace App\Modules\UserType\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\UserType\Http\Requests\SyncPermissionsRequest;
 use App\Modules\UserType\Http\Requests\UserTypeRequest;
 use App\Modules\UserType\Http\Resources\UserTypeResource;
 use App\Modules\UserType\Model\UserType;
@@ -68,6 +69,13 @@ class UserTypeController extends Controller
         return response()->json([
             "data" => $this->repository->options($request)
         ]);
+    }
+
+    public function syncPermissions(SyncPermissionsRequest $request, UserType $userType): Response
+    {
+        $this->repository->syncPermissions($userType, $request->permissions);
+
+        return response()->noContent();
     }
 
     private function isProtectedUserType(UserType $userType): bool
