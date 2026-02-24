@@ -18,4 +18,11 @@ class SyncPermissionsRequest extends FormRequest
             'permissions.*' => ['exists:permissions,id'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'permissions.*.exists' => 'A permissão selecionada não é inválido.',
+        ];
+    }
 }

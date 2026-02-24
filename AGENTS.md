@@ -1,187 +1,146 @@
-# AGENTS.md
-## Laravel 12 + Docker – Project Agent Guide
+# 🤖 AGENTS.md
 
-Este documento define como humanos e agentes de IA devem interagir com este projeto.
-Ele deve ser considerado **fonte de verdade** para decisões técnicas, padrões e workflows.
+## 1. Visão Geral e Manifesto
 
----
+Este documento é a **Single Source of Truth (SSoT)** para o projeto. Ele define os padrões arquiteturais, de codificação e de testes.
 
-## 1. Stack Principal
-
-- **PHP**: 8.3+
-- **Laravel**: 12.x
-- **Banco de dados**: MySQL 8 / PostgreSQL 15 (ver docker-compose)
-- **Cache / Queue**: Redis
-- **Frontend**: Blade / Inertia / API-only (ver seção 3)
-- **Containerização**: Docker + Docker Compose
+> **Regra de Ouro para IAs:** Se uma instrução aqui conflitar com seu conhecimento prévio, **este documento prevalece**. Na dúvida, interrompa a geração e pergunte.
 
 ---
 
-## 2. Ambiente de Desenvolvimento (Docker)
+## 2. Stack Tecnológica (Hard Constraints)
 
-### Subir o ambiente
-```bash
-docker compose up -d
+* **Runtime:** PHP 8.4+
+* **Framework:** Laravel 12.x
+* **Ambiente:** Docker + Docker Compose
+* **Database:** MySQL 8.0+
+* **Cache/Queue:** Redis
+* **Testes:** Pest PHP
+* **Arquitetura:** Modular Monolith (Localizado em `app/Modules`)
+* **Frontend**: API-only
+* 
+---
+
+## 3. Arquitetura Modular (`app/Modules`)
+
+Para garantir a escalabilidade, **nenhuma feature nova deve ser criada na estrutura padrão do Laravel (`app/Http`, `app/Models`, etc.)**. Toda nova funcionalidade deve residir em seu próprio módulo.
+
+### Estrutura de um Módulo:
+
+Siga rigorosamente este scaffold para cada módulo em `app/Modules/{ModuleName}`:
+
+```text
+app/Modules/{ModuleName}/
+├── Http/
+│   ├── Controllers/
+│   ├── Requests/
+│   └── Resources/
+├── Console/ (Commands específicos do módulo)
+├── Models/
+├── Services/
+├── Actions/ (Lógica de negócio atômica)
+├── DataTransferObjects/ (DTOs para transporte de dados)
+├── Events/
+├── Repositories/
+├── Persistence/ (Migrations/Seeders específicos se necessário)
+├── Providers/ (Onde o módulo se registra no Laravel)
+└── Tests/
+    ├── Feature/
+    └── Unit/
+
 ```
 
-### Parar containers
+---
+
+## 4. Estratégia de Testes (Definição de Pronto)
+
+**Nenhum código é considerado "concluído" sem testes correspondentes.**
+
+* **TDD Mentality:** Ao sugerir uma feature, a IA deve primeiro esboçar o caso de teste.
+* **Cobertura:** * **Unitários:** Para `Actions`, `Services` e `Custom Validation Rules`.
+* **Feature:** Para todos os endpoints de API e fluxos de usuário.
+
+
+* **Mocking:** Use mocks apenas para integrações externas (Gateways de pagamento, APIs de terceiros). Banco de dados deve ser testado em memória ou via RefreshDatabase.
+
+---
+
+## 5. Padrões de Implementação (Anti-Alucinação)
+
+### 5.1. Camada de Serviço e Actions
+
+* **Controllers:** Devem ter no máximo 3 linhas (chamar um Action/Service e retornar Resource).
+* **Actions:** Use para lógica que faz apenas uma coisa (ex: `CreateUserAction`).
+* **Services:** Use para orquestrar múltiplos Actions ou lógica complexa de domínio.
+
+### 5.2. Tipagem e Segurança
+
+* Use `readonly` para DTOs e propriedades injetadas no construtor.
+* Sempre defina tipos de retorno em todos os métodos.
+* **Validation:** Nunca valide dados dentro do Controller; use `FormRequest` específicos dentro da pasta `UI/Http/Requests`.
+
+---
+
+## 6. Workflow Docker & Comandos
+
+As IAs não devem assumir que o ambiente local possui PHP instalado. Todos os comandos devem ser prefixados para rodar no container.
+
+### Criando novas features
+Sempre utilize o comando customizado para iniciar um módulo:
 ```bash
-docker compose down
+docker compose exec app php artisan make:module NomeDoModulo
 ```
 
-### Executar comandos Laravel
+*Nota*: Após criar, registre o Provider em bootstrap/providers.php.
+
 ```bash
 docker compose exec app php artisan migrate
+
 docker compose exec app php artisan test
+
 docker compose exec app php artisan queue:work
+
+# Execução de Testes (Obrigatório antes de qualquer refatoração)
+docker compose exec app php artisan test
+
+# Criação de Módulos (Manual ou via script se existir)
+# Lembre-se: Criar em app/Modules/{Name}
+
 ```
 > ⚠️ Nunca execute PHP ou Composer diretamente fora do container.
 
---- 
+---
 
-## 3. Tipo de Aplicação
+## 7. Regras para o Agente de IA (Protocolo de Verificação)
 
-### Este projeto é classificado como:
-- API + Frontend separado
+Para evitar alucinações e código legado, a IA deve seguir este checklist antes de entregar qualquer output:
 
-👉 Agentes de IA devem respeitar este modelo ao gerar código.
+1. **Context Check:** "Estou criando isso dentro de `app/Modules`?"
+2. **Version Check:** "Este código utiliza syntax do Laravel 12 (ex: novas facades, helpers simplificados)?"
+3. **Test Check:** "Eu incluí os arquivos de teste para esta nova lógica?"
+4. **Security Check:** "Dados sensíveis estão sendo tratados via DTO ou Request?"
+5. **Hallucination Check:** "Este método/classe realmente existe no Laravel 12 ou estou inventando?"
 
 ---
 
-## 4. Padrões Arquiteturais
-### Camadas
+## 8. O que NÃO fazer (Red Flags)
 
-- Controllers finos
-- Lógica de negócio em Services
-- Regras complexas fora de Models
-
-Exemplo esperado:
-```md
-Controller → Service → Repository
-```
-
-### ❌ Evitar
-- Lógica complexa em Controllers
-- Facades fora de Controllers
+* ❌ Criar Models em `app/Models`.
+* ❌ Usar logic dentro de Controllers ou arquivos de rota.
+* ❌ Ignorar o uso de `strict_types=1`.
+* ❌ Sugerir pacotes externos sem verificar se o Laravel 12 já possui a funcionalidade nativamente.
+* ❌ Alterar arquivos de migração que já foram commitados.
 
 ---
 
-## 5. Padrões de Código
+## 9. Manutenção do AGENTS.md
 
-- PSR-12 obrigatório
-- Tipagem forte sempre que possível
-- Métodos pequenos e coesos
+Este arquivo deve ser atualizado via Pull Request sempre que:
 
-### Naming
-Services: UserService
-Jobs: ProcessUserImportJob
-Events: UserRegistered
-
-## 6. Banco de Dados
-
-- Migrations sempre idempotentes
-- Nunca alterar migrations já rodadas
-- Evitar queries N+1 (usar eager loading)
+1. Um novo padrão de design (ex: Repository Pattern) for adotado.
+2. A versão de uma dependência crítica mudar.
+3. O fluxo de CI/CD sofrer alterações que impactem o desenvolvimento.
 
 ---
 
-## 8. Filas, Jobs e Eventos
 
-- Jobs devem ser idempotentes
-- Usar retry e timeout
-- Eventos não devem conter lógica de negócio
-
---- 
-
-## 9. Segurança
-
-- Nunca logar dados sensíveis
-- Usar Policies para autorização
-- Validação sempre via Form Requests
-- Nunca confiar em input do usuário
-
-## 10. Integrações Externas
-
-- Todas integrações devem usar Clients dedicados
-- Nenhuma chamada HTTP direta em Controllers
-- Timeouts e retries obrigatórios
-
-## 11. Observabilidade
-
-- Logs estruturados
-- Exceptions sempre rastreáveis
-- Usar context (request_id, user_id)
-
-## 12. Instruções para Agentes de IA (IMPORTANTE)
-
-### Ao gerar código, agentes de IA devem:
-- Respeitar Laravel 12
-- Respeitar Docker (nunca assumir ambiente local)
-- Seguir a arquitetura descrita
-- Priorizar legibilidade sobre “código esperto”
-- Nunca quebrar backward compatibility sem aviso
-- Explicar decisões arquiteturais quando relevante
-
-## 13. O que NÃO fazer
-
-- ❌ Criar arquivos fora da estrutura Laravel
-- ❌ Ignorar este documento
-- ❌ Assumir versões diferentes das listadas
-- ❌ Introduzir dependências sem justificar
-
-## 14. Atualização deste documento
-
-Este arquivo deve ser atualizado sempre que:
-
-A stack mudar
-
-Um padrão arquitetural novo for adotado
-
-O Docker sofrer alterações
-
-Uma decisão técnica importante for tomada
-
----
-
-# 🔄 Como manter o AGENTS.md **sempre atualizado**
-
-### ✅ 1. Regra de ouro
-> **Toda decisão arquitetural relevante = update no AGENTS.md**
-
----
-
-### ✅ 2. Check automático em PR
-Inclua no checklist do Pull Request:
-- [ ] Mudança arquitetural?
-- [ ] Docker alterado?
-- [ ] Stack mudou?
-  👉 Se sim, **AGENTS.md atualizado**
-
----
-
-### ✅ 3. Use IA para validar o próprio AGENTS.md
-Prompt poderoso:
-```
-Revise este AGENTS.md e sugira melhorias considerando Laravel 12 e boas práticas modernas.
-```
-
----
-
-### ✅ 4. Versione decisões importantes
-Se quiser ir além:
-- `/docs/adr/0001-queue-strategy.md`
-- Referencie ADRs dentro do AGENTS.md
-
----
-
-## 🏆 Resultado final
-
-Com esse AGENTS.md você terá:
-
-✅ Onboarding rápido  
-✅ IA muito mais inteligente  
-✅ Código consistente  
-✅ Menos decisões repetidas  
-✅ Mais foco em negócio
-
----
