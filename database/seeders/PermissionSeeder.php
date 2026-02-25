@@ -29,6 +29,7 @@ class PermissionSeeder extends Seeder
             [ 'id' => 11, 'name' => 'document-type.options', 'description' => 'Acesso à opções de Tipos de Documentos', 'created_at' => $date, 'updated_at' => $date ],
             [ 'id' => 12, 'name' => 'report', 'description' => 'Acesso ao módulo de Exportações', 'created_at' => $date, 'updated_at' => $date ],
             [ 'id' => 13, 'name' => 'permission', 'description' => 'Acesso ao módulo de permissões', 'created_at' => $date, 'updated_at' => $date ],
+            [ 'id' => 14, 'name' => 'permission.all', 'description' => 'Lista com todas as permissões', 'created_at' => $date, 'updated_at' => $date ],
         ]);
 
         DB::table('permission_user_type')->insertOrIgnore([

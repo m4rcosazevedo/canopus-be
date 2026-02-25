@@ -20,6 +20,8 @@ class AppServiceProvider extends ServiceProvider
             \App\Modules\Report\Contracts\ReportStorageInterface::class,
             \App\Modules\Report\Services\ReportStorageManager::class
         );
+
+        $this->app->register(SlugWithDotProvider::class);
     }
 
     /**

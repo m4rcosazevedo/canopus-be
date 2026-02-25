@@ -2,10 +2,19 @@
 
 namespace App\Modules\UserType\Filters;
 
-use App\Builders\QueryFilter;
+use App\Builders\SortableQueryFilter;
 
-class UserTypeFilter extends QueryFilter
+class UserTypeFilter extends SortableQueryFilter
 {
+    protected array $sortable = [
+        'id'          => 'id',
+        'name'        => 'name',
+        'description' => 'description'
+    ];
+
+    protected string $sortColumn = 'name';
+    protected string $sortOrder  = 'asc';
+
     public function name(string $value): void
     {
         $this->builder->where('name', 'LIKE', "%$value%");

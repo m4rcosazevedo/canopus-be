@@ -5,6 +5,7 @@ namespace App\Modules\Permission\Repositories;
 use App\Modules\Permission\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 readonly class PermissionRepository
 {
@@ -15,6 +16,13 @@ readonly class PermissionRepository
     public function paginate(Request $request): LengthAwarePaginator
     {
         return $this->model->paginate();
+    }
+
+    public function all(): Collection
+    {
+        return $this->model
+            ->orderBy('name')
+            ->get();
     }
 
     public function find(int $id): ?Permission

@@ -6,7 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class SyncPermissionsRequest extends FormRequest
 {
-    public mixed $permissions;
 
     public function authorize(): bool
     {
@@ -16,7 +15,7 @@ class SyncPermissionsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'permissions' => ['required', 'array'],
+            'permissions' => ['nullable', 'array'],
             'permissions.*' => ['exists:permissions,id'],
         ];
     }

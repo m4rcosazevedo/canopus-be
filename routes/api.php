@@ -84,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // --- Permissions Management ---
+    Route::get('/permission/all', [PermissionController::class, 'all'])->middleware('permission:permission.all');
     Route::middleware('permission:permission')->group(function () {
         Route::apiResource('/permission', PermissionController::class);
     });

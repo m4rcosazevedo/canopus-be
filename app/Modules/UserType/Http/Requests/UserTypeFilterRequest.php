@@ -13,4 +13,11 @@ class UserTypeFilterRequest extends FormRequest
             'visible' => ['nullable', 'boolean'],
         ];
     }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'visible' => filter_var($this->visible, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
+        ]);
+    }
 }

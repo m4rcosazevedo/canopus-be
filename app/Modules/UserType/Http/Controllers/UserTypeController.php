@@ -82,7 +82,7 @@ class UserTypeController extends Controller
 
     public function syncPermissions(SyncPermissionsRequest $request, UserType $userType): Response
     {
-        $this->repository->syncPermissions($userType, $request->permissions);
+        $this->repository->syncPermissions($userType, $request->input('permissions', []));
 
         return response()->noContent();
     }

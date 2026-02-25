@@ -54,12 +54,20 @@ class PermissionController extends Controller
     public function destroy(int $id): Response
     {
         $userTypeId = auth()->user()->user_type_id;
-        $canDelete = $userTypeId === UserTypeIdEnum::ROOT->value;
-        Log::error('$userTypeId', $userTypeId, $canDelete);
-        dd($userTypeId);
+
+        if ($userTypeId !== UserTypeIdEnum::ROOT->value) {
+            abort(403, 'Este usuário não pode remover permissões.');
+        }
 
         $this->repository->delete($id);
 
         return response()->noContent();
+    }
+
+    public function all(): AnonymousResourceCollection
+    {
+        return PermissionResource::collection(
+            $this->repository->all()
+        );
     }
 }

@@ -26,6 +26,6 @@ class Permission extends BaseModel
     /** Attributes */
     public function setNameAttribute($value)
     {
-        $this->attributes['name'] = Str::slug($value);
+        $this->attributes['name'] = Str::slugWithDot($value);
     }
 }
