@@ -41,7 +41,7 @@ class AuthController extends Controller
     private function authenticatedUserResource(): UserResource
     {
         return new UserResource(
-            Auth::user()->load(['userType'])
+            Auth::user()->load(['userType.permissions'])
         );
     }
 
