@@ -19,28 +19,33 @@ class MenuService
         }
 
         $menus = $this->repository->getRootMenus();
-
         $user->load(['userType.permissions']);
-
         $userPermissions = $user->userType ? $user->userType->permissions->pluck('id')->toArray() : [];
 
+        return $this->filterRecursive($menus, $userPermissions);
+    }
+
+    private function filterRecursive(Collection $menus, array $userPermissions): Collection
+    {
         return $menus->filter(function ($menu) use ($userPermissions) {
+            // 1. Verifica permissão do menu atual
             if (!$this->canAccessMenu($menu, $userPermissions)) {
                 return false;
             }
 
-            $filteredChildren = $menu->children->filter(function ($child) use ($userPermissions) {
-                return $this->canAccessMenu($child, $userPermissions);
-            })->values();
-
-            $menu->setRelation('children', $filteredChildren);
-
-            if (empty($menu->route)) {
-                return $filteredChildren->contains(function ($child) {
-                    return !empty($child->route);
-                });
+            // 2. Se o menu tem filhos, aplica o filtro recursivamente
+            if ($menu->children->isNotEmpty()) {
+                $filteredChildren = $this->filterRecursive($menu->children, $userPermissions);
+                $menu->setRelation('children', $filteredChildren);
             }
 
+            // 3. Regra de exibição:
+            // Se o menu não tem rota (é um agrupador), ele DEVE ter pelo menos um filho visível.
+            if (empty($menu->route)) {
+                return $menu->children->isNotEmpty();
+            }
+
+            // Se tem rota, exibe normalmente (já passou na verificação de permissão)
             return true;
         })->values();
     }

@@ -15,9 +15,7 @@ class MenuServiceProvider extends ServiceProvider
     protected function registerRoutes(): void
     {
         Route::middleware(['api', 'auth:sanctum'])
-            ->prefix('api/menus')
-            ->group(function () {
-                Route::get('/', [\App\Modules\Menu\Http\Controllers\MenuController::class, 'index']);
-            });
+            ->prefix('api')
+            ->group(base_path('app/Modules/Menu/Routes/api.php'));
     }
 }
