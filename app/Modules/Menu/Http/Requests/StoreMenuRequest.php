@@ -20,7 +20,7 @@ class StoreMenuRequest extends FormRequest
             'parent_id' => ['nullable', 'exists:menus,id'],
             'permission_id' => ['nullable', 'exists:permissions,id'],
             'order' => ['nullable', 'integer'],
-            'visible' => ['boolean'],
+            'visible' => ['nullable', 'boolean'],
         ];
     }
 }

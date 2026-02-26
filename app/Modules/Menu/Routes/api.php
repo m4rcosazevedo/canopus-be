@@ -15,5 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('menu/available', [MenuController::class, 'available']);
-Route::get('menu/options', [MenuController::class, 'options']);
-Route::apiResource('menu', MenuController::class);
+Route::middleware(['permission:menu'])->group(function () {
+    Route::get('menu/options', [MenuController::class, 'options']);
+    Route::apiResource('menu', MenuController::class);
+});

@@ -9,12 +9,15 @@ class MenuResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'route' => $this->route,
-            'icon' => $this->icon,
-            'order' => $this->order,
-            'children' => MenuResource::collection($this->whenLoaded('children')),
+            'id'            => $this->resource->id,
+            'name'          => $this->resource->name,
+            'route'         => $this->resource->route,
+            'icon'          => $this->resource->icon,
+            'order'         => $this->resource->order,
+            'visible'       => $this->resource->visible,
+            'parent_id'     => $this->resource->parent_id,
+            'permission_id' => $this->resource->permission_id,
+            'children'      => MenuResource::collection($this->whenLoaded('children')),
         ];
     }
 }

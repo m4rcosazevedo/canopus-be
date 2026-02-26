@@ -64,9 +64,10 @@ class MenuController extends Controller
         return response()->noContent();
     }
 
-    public function available(Request $request): JsonResponse
+    public function available(Request $request): AnonymousResourceCollection
     {
-        $menus = $this->service->getMenusForUser($request->user());
-        return response()->json(MenuResource::collection($menus));
+        return MenuResource::collection(
+            $this->service->getMenusForUser($request->user())
+        );
     }
 }
