@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+//use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -23,7 +22,8 @@ class DatabaseSeeder extends Seeder
             DocumentTypeSeeder::class,
             StateSeeder::class,
             CitySeeder::class,
-            PermissionSeeder::class
+            PermissionSeeder::class,
+            MenuSeeder::class
         ]);
     }
 }
