@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::post('/signIn', [AuthController::class, 'signIn']);
+Route::post('/send-login-code', [AuthController::class, 'sendLoginCode']);
+Route::post('/login-with-code', [AuthController::class, 'loginWithCode']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {

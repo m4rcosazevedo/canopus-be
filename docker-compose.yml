@@ -16,6 +16,7 @@ services:
       - canopus-network
     depends_on:
       - canopus-redis
+      - canopus-mailpit
 
   canopus-db:
     image: mysql:8.0
@@ -53,6 +54,16 @@ services:
       - "6379:6379"
     volumes:
       - ./.docker/redis/data:/data
+    networks:
+      - canopus-network
+
+  canopus-mailpit:
+    image: axllent/mailpit
+    container_name: canopus-mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"  # interface web
+      - "1025:1025"  # porta SMTP
     networks:
       - canopus-network
 

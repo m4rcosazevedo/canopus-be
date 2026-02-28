@@ -4,12 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\LoginWithCodeRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\SendLoginCodeRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Notifications\LoginCodeNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -118,5 +122,39 @@ class AuthController extends Controller
         ]);
 
         return response()->json(['message' => 'Senha alterada com sucesso.']);
+    }
+
+    public function sendLoginCode(SendLoginCodeRequest $request): JsonResponse
+    {
+        $user = User::where('email', $request->email)->first();
+
+        $code = (string) random_int(100000, 999999);
+
+        Cache::put("login_code_{$user->email}", $code, now()->addMinutes(5));
+
+        $user->notify(new LoginCodeNotification($code, $user->name));
+
+        return response()->json(['message' => 'Código enviado para o seu e-mail.']);
+    }
+
+    public function loginWithCode(LoginWithCodeRequest $request): UserResource
+    {
+        $cachedCode = Cache::get("login_code_{$request->email}");
+
+        if (!$cachedCode || $cachedCode !== $request->code) {
+            throw ValidationException::withMessages([
+                'code' => ['O código fornecido é inválido ou expirou.'],
+            ]);
+        }
+
+        Cache::forget("login_code_{$request->email}");
+
+        $user = User::where('email', $request->email)->first();
+
+        Auth::login($user, true);
+
+        $request->session()->regenerate();
+
+        return $this->authenticatedUserResource();
     }
 }
