@@ -3,10 +3,6 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ClassController;
-use App\Http\Controllers\ClassRegistrationController;
-use App\Http\Controllers\EnrollmentController;
-use App\Http\Controllers\PlanController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDocumentController;
@@ -90,23 +86,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('permission:permission')->group(function () {
         Route::apiResource('/permission', PermissionController::class);
     });
-
-
-    /** Plans */
-    Route::group(['prefix' => '/plan'], function () {
-        Route::get('/available', [PlanController::class, 'available']);
-        Route::get('/{planId}/available-classes', [ClassController::class, 'availableClasses']);
-    });
-    Route::apiResource('/plan', PlanController::class);
-
-    /** Class */
-    Route::apiResource('/class', ClassController::class);
-
-    /** Class Registration */
-    Route::group(['prefix' => '/class-registration'], function () {
-        Route::get('/', [ClassRegistrationController::class, 'index']);
-    });
-
-    /** Enroll */
-    Route::post('/enroll', [EnrollmentController::class, 'enroll']);
 });

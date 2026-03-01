@@ -15,15 +15,15 @@ class AuditLogResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'             => $this->resource->id,
+            'id'            => $this->resource->id,
             'transactionId' => $this->resource->transaction_id,
             'user' => [
                 'id'    => $this->resource->user_id,
                 'email' => $this->resource->user_email,
             ],
             'action' => [
-                'event'      => $this->resource->event,
-                'model'      => $this->getModel($this->resource->auditable_type),
+                'event'     => $this->resource->event,
+                'model'     => $this->getModel($this->resource->auditable_type),
                 'modelId'   => $this->resource->auditable_id,
             ],
             'changes' => $this->resource->when($this->resource->event === 'updated', function () {
@@ -34,9 +34,9 @@ class AuditLogResource extends JsonResource
                 'after'  => $this->resource->new_values,
             ],
             'metadata' => [
-                'ip'         => $this->resource->ip_address,
+                'ip'        => $this->resource->ip_address,
                 'userAgent' => $this->resource->user_agent,
-                'url'        => $this->resource->url,
+                'url'       => $this->resource->url,
                 'createdAt' => $this->resource->created_at,
             ],
         ];
