@@ -23,7 +23,9 @@ class DatabaseSeeder extends Seeder
             StateSeeder::class,
             CitySeeder::class,
             PermissionSeeder::class,
-            MenuSeeder::class
+            MenuSeeder::class,
+            AreaSeeder::class,
+            SubjectSeeder::class,
         ]);
     }
 }

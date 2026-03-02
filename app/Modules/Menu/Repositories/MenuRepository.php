@@ -12,6 +12,7 @@ class MenuRepository
     public function paginate(): LengthAwarePaginator
     {
         return Menu::query()
+            ->with(['parent'])
             ->paginate();
     }
 
@@ -29,7 +30,8 @@ class MenuRepository
 
     public function findById(int $id): Menu
     {
-        return Menu::findOrFail($id);
+        return Menu::with(['permission', 'parent'])
+            ->findOrFail($id);
     }
 
     public function update(int $id, array $data): Menu

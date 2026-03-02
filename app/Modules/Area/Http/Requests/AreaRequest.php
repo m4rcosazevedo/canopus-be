@@ -3,7 +3,6 @@
 namespace App\Modules\Area\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class AreaRequest extends FormRequest
 {

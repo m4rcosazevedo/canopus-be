@@ -7,6 +7,7 @@ use App\Modules\Area\Filters\AreaFilter;
 use App\Modules\Area\Http\Requests\AreaRequest;
 use App\Modules\Area\Http\Resources\AreaResource;
 use App\Modules\Area\Repositories\AreaRepository;
+use App\Modules\Area\Models\Area;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
@@ -71,4 +72,17 @@ class AreaController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * GET /Areas/Options
+     */
+    public function options ()
+    {
+        $options = $this->repository->all();
+        return response()->json([
+            'data' => $options->map(fn (Area $city) => [
+                'label' => $city->name,
+                'value' => $city->id,
+            ])
+        ]);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Menu\Http\Resources;
 
+use App\Modules\Permission\Http\Resources\PermissionResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MenuResource extends JsonResource
@@ -18,6 +19,8 @@ class MenuResource extends JsonResource
             'parent_id'     => $this->resource->parent_id,
             'permission_id' => $this->resource->permission_id,
             'children'      => MenuResource::collection($this->whenLoaded('children')),
+            'parent'        => new MenuResource($this->whenLoaded('parent')),
+            'permission'    => new PermissionResource($this->whenLoaded('permission')),
         ];
     }
 }

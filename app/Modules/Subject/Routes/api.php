@@ -1,7 +1,7 @@
 <?php
 
 
-use App\Modules\Area\Http\Controllers\AreaController;
+use App\Modules\Subject\Http\Controllers\SubjectController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['permission:area'])->group(function () {
-    Route::get('area/options', [AreaController::class, 'options'])->middleware('permission:area.options');
-    Route::apiResource('area', AreaController::class);
+Route::middleware(['permission:subject'])->group(function () {
+    Route::apiResource('subject', SubjectController::class);
 });
