@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Modules\Area\Models\Area;
 use App\Modules\Subject\Models\Subject;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class SubjectSeeder extends Seeder
 {
@@ -43,11 +44,12 @@ class SubjectSeeder extends Seeder
             if (!$area) continue;
 
             foreach ($areaSubjects as $subject) {
-                Subject::firstOrCreate([
+                Subject::query()->firstOrCreate([
                     'name' => $subject['name'],
                     'area_id' => $area->id,
                 ], [
                     'color_hex' => $subject['color'],
+                    'slug' => Str::slug($subject['name']),
                 ]);
             }
         }
