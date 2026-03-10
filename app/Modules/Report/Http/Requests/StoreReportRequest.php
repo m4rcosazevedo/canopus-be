@@ -30,6 +30,7 @@ class StoreReportRequest extends FormRequest
             'token' => ['nullable', 'string'],
             'options' => ['required', 'array'],
             'options.type' => ['required', 'in:pdf,csv,xlsx'],
+            'options.footerPDF' => ['nullable', 'in:count'],
             'options.format' => ['nullable', 'in:array,object'],
             'options.contentKey' => ['nullable', 'string'],
             'options.paginate' => ['nullable', 'array'],

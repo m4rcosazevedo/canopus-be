@@ -37,11 +37,13 @@ class PdfGenerator implements ReportGeneratorInterface
             $this->storage->putTemp($htmlFile, $html);
             $this->writeTableHeader($htmlFile, $fields);
 
+            $count = 0;
             $handle = $this->storage->getTempStream($tempDataFile);
             if ($handle) {
                 while (($line = fgets($handle)) !== false) {
                     $row = json_decode($line, true);
                     if ($row) {
+                        $count++;
                         $tr = '<tr>';
                         foreach ($fields as $field) {
                             $value = $row[$field['title']] ?? '';
@@ -52,6 +54,12 @@ class PdfGenerator implements ReportGeneratorInterface
                     }
                 }
                 fclose($handle);
+            }
+
+            if (isset($report->parameters['footerPDF']) && $report->parameters['footerPDF'] === 'count') {
+                $colspan = count($fields);
+                $footerHtml = "<tr><td colspan='{$colspan}' style='text-align: right; font-weight: bold; background-color: #f2f2f2;'>Total de Registros: {$count}</td></tr>";
+                $this->storage->appendTemp($htmlFile, $footerHtml);
             }
 
             $this->storage->appendTemp($htmlFile, '</tbody></table></body></html>');
