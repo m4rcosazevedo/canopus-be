@@ -5,117 +5,163 @@ namespace App\Modules\Report\Generators;
 use App\Modules\Report\Contracts\ReportGeneratorInterface;
 use App\Modules\Report\Contracts\ReportStorageInterface;
 use App\Modules\Report\Models\Report;
-use Illuminate\Support\Facades\Storage;
+use App\Modules\Report\Renderers\RowRenderer;
+use App\Modules\Report\Services\Aggregation\AggregationEngine;
+use App\Modules\Report\Support\BufferedWriter;
 use Spatie\Browsershot\Browsershot;
 use Throwable;
 
 class PdfGenerator implements ReportGeneratorInterface
 {
+    private const MAX_PORTRAIT_FIELDS = 7;
+    private const BUFFER_LIMIT = 100;
+    private const CHROMIUM_PATH = '/usr/bin/chromium';
+    private const CHROMIUM_ARGUMENTS = [
+        'no-sandbox',
+        'disable-setuid-sandbox',
+        'disable-dev-shm-usage',
+        'disable-extensions',
+        'disable-gpu',
+        'no-zygote',
+        'single-process',
+    ];
+
     public function __construct(
         protected ReportStorageInterface $storage
     ) {}
 
     public function generate(Report $report, string $tempDataFile): string
     {
-        $fields = $report->parameters['fields'];
-        $layout = $this->calculateLayout($fields);
-
-        $queryDisplay = collect($report->parameters['queryDisplay'] ?? [])
-            ->filter(fn($item) => isset($item['value']) && trim((string) $item['value']) !== '')
-            ->values()
-            ->toArray();
-
-        $htmlFile = 'temp_html_' . $report->id . '.html';
-        $outputPdfFile = 'generated_pdf_' . $report->id . '.pdf';
+        $fields     = $report->parameters['fields'];
+        $htmlFile   = "temp_html_{$report->id}.html";
+        $outputFile = "generated_pdf_{$report->id}.pdf";
 
         try {
-            $html = view('reports.pdf_header', [
-                'title' => $report->parameters['title'] ?? 'Relatório',
-                'queryDisplay' => $queryDisplay,
-            ])->render();
+            $this->buildHtml($report, $fields, $tempDataFile, $htmlFile);
+            $this->renderPdf($htmlFile, $outputFile, $fields);
 
-            $this->storage->putTemp($htmlFile, $html);
-            $this->writeTableHeader($htmlFile, $fields);
-
-            $count = 0;
-            $handle = $this->storage->getTempStream($tempDataFile);
-            if ($handle) {
-                while (($line = fgets($handle)) !== false) {
-                    $row = json_decode($line, true);
-                    if ($row) {
-                        $count++;
-                        $tr = '<tr>';
-                        foreach ($fields as $field) {
-                            $value = $row[$field['title']] ?? '';
-                            $tr .= '<td>' . htmlspecialchars((string)$value) . '</td>';
-                        }
-                        $tr .= '</tr>';
-                        $this->storage->appendTemp($htmlFile, $tr);
-                    }
-                }
-                fclose($handle);
-            }
-
-            if (isset($report->parameters['footerPDF']) && $report->parameters['footerPDF'] === 'count') {
-                $colspan = count($fields);
-                $footerHtml = "<tr><td colspan='{$colspan}' style='text-align: right; font-weight: bold; background-color: #f2f2f2;'>Total de Registros: {$count}</td></tr>";
-                $this->storage->appendTemp($htmlFile, $footerHtml);
-            }
-
-            $this->storage->appendTemp($htmlFile, '</tbody></table></body></html>');
-
-            $fullHtml = $this->storage->getTempContent($htmlFile);
-            $this->storage->deleteTemp($htmlFile);
-
-            $absoluteSavePath = $this->storage->getTempPath($outputPdfFile);
-
-            $browsershot = Browsershot::html($fullHtml)
-                ->format('A4')
-                ->margins(10, 10, 10, 10)
-                ->showBackground()
-                ->setChromePath('/usr/bin/chromium')
-                ->addChromiumArguments([
-                    'no-sandbox',
-                    'disable-setuid-sandbox',
-                    'disable-dev-shm-usage',
-                    'disable-extensions',
-                    'disable-gpu',
-                    'no-zygote',
-                    'single-process',
-                ]);
-
-            if ($layout['orientation'] === 'landscape') {
-                $browsershot->landscape();
-            }
-
-            $browsershot->save($absoluteSavePath);
-
-            return $outputPdfFile;
-
+            return $outputFile;
         } catch (Throwable $e) {
-            if ($this->storage->existsTemp($htmlFile)) {
-                $this->storage->deleteTemp([$htmlFile, $outputPdfFile]);
-            }
+            $this->cleanupTempFiles($htmlFile, $outputFile);
             throw $e;
         }
     }
 
-    protected function writeTableHeader(string $htmlFile, array $fields): void
+    private function buildHtml(Report $report, array $fields, string $tempDataFile, string $htmlFile): void
     {
-        $tableHeader = '<table class="table-report"><thead><tr>';
-        foreach ($fields as $field) {
-            $tableHeader .= '<th>' . htmlspecialchars($field['title']) . '</th>';
-        }
-        $tableHeader .= '</tr></thead><tbody>';
+        $engine   = new AggregationEngine();
+        $renderer = new RowRenderer();
+        $writer   = new BufferedWriter(storage: $this->storage, file: $htmlFile, limit: self::BUFFER_LIMIT);
 
-        $this->storage->appendTemp($htmlFile, $tableHeader);
+        $engine->initialize($fields);
+
+        $header = view('reports.pdf_header', [
+            'title'        => $report->parameters['title'] ?? 'Relatório',
+            'queryDisplay' => $this->filterQueryDisplay($report->parameters['queryDisplay'] ?? []),
+        ])->render();
+
+        $this->storage->putTemp($htmlFile, $header);
+        $this->storage->appendTemp($htmlFile, $this->renderTableHeader($fields));
+
+        $count = $this->streamRows($tempDataFile, $engine, $renderer, $writer, $fields);
+
+        $writer->append($renderer->renderAggregation($fields, $engine->result()));
+
+        if ($this->shouldDisplayTotalRecords($report)) {
+            $writer->append($renderer->renderFooter(count($fields), $count));
+        }
+
+        $writer->flush();
+
+        $this->storage->appendTemp($htmlFile, '</tbody></table></body></html>');
     }
 
-    protected function calculateLayout(array $fields): array
+    private function streamRows(
+        string $tempDataFile,
+        AggregationEngine $engine,
+        RowRenderer $renderer,
+        BufferedWriter $writer,
+        array $fields
+    ): int {
+        $count  = 0;
+        $handle = $this->storage->getTempStream($tempDataFile);
+
+        if (!$handle) {
+            return $count;
+        }
+
+        while (($line = fgets($handle)) !== false) {
+            $row = json_decode($line, true);
+
+            if (!$row) {
+                continue;
+            }
+
+            $count++;
+            $engine->accumulate($row);
+            $writer->append($renderer->render($fields, $row));
+        }
+
+        fclose($handle);
+
+        return $count;
+    }
+
+    private function renderPdf(string $htmlFile, string $outputFile, array $fields): void
     {
-        $maxPortrait = 7;
-        return [
-            'orientation' => count($fields) <= $maxPortrait ? 'portrait' : 'landscape',
-        ];
+        $fullHtml    = $this->storage->getTempContent($htmlFile);
+        $orientation = $this->resolveOrientation($fields);
+        $outputPath  = $this->storage->getTempPath($outputFile);
+
+        $this->storage->deleteTemp($htmlFile);
+
+        $browsershot = Browsershot::html($fullHtml)
+            ->format('A4')
+            ->margins(10, 10, 10, 10)
+            ->showBackground()
+            ->setChromePath(self::CHROMIUM_PATH)
+            ->addChromiumArguments(self::CHROMIUM_ARGUMENTS);
+
+        if ($orientation === 'landscape') {
+            $browsershot->landscape();
+        }
+
+        $browsershot->save($outputPath);
+    }
+
+    private function renderTableHeader(array $fields): string
+    {
+        $headers = collect($fields)
+            ->map(fn($field) => '<th>' . htmlspecialchars($field['title']) . '</th>')
+            ->implode('');
+
+        return "<table><thead><tr>{$headers}</tr></thead><tbody>";
+    }
+
+    private function filterQueryDisplay(array $queryDisplay): array
+    {
+        return collect($queryDisplay)
+            ->filter(fn($item) => isset($item['value']) && trim((string) $item['value']) !== '')
+            ->values()
+            ->toArray();
+    }
+
+    private function resolveOrientation(array $fields): string
+    {
+        return count($fields) <= self::MAX_PORTRAIT_FIELDS ? 'portrait' : 'landscape';
+    }
+
+    private function shouldDisplayTotalRecords(Report $report): bool
+    {
+        return (bool) ($report->parameters['footer']['displayTotalRecords'] ?? false);
+    }
+
+    private function cleanupTempFiles(string ...$files): void
+    {
+        $existing = array_filter($files, fn($f) => $this->storage->existsTemp($f));
+
+        if ($existing) {
+            $this->storage->deleteTemp($existing);
+        }
     }
 }
