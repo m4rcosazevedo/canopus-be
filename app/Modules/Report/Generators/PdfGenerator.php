@@ -7,6 +7,7 @@ use App\Modules\Report\Contracts\ReportStorageInterface;
 use App\Modules\Report\Models\Report;
 use App\Modules\Report\Renderers\RowRenderer;
 use App\Modules\Report\Services\Aggregation\AggregationEngine;
+use App\Modules\Report\Services\FormatterService;
 use App\Modules\Report\Support\BufferedWriter;
 use Spatie\Browsershot\Browsershot;
 use Throwable;
@@ -50,7 +51,8 @@ class PdfGenerator implements ReportGeneratorInterface
     private function buildHtml(Report $report, array $fields, string $tempDataFile, string $htmlFile): void
     {
         $engine   = new AggregationEngine();
-        $renderer = new RowRenderer();
+        $formatter = new FormatterService();
+        $renderer = new RowRenderer($formatter);
         $writer   = new BufferedWriter(storage: $this->storage, file: $htmlFile, limit: self::BUFFER_LIMIT);
 
         $engine->initialize($fields);
